@@ -18,7 +18,7 @@ const MainSlider = ({ slides, onSlideClick, title = "최신 슬라이드" }) => 
   }, [slides.length])
 
   const goToPrevious = () => {
-    setCurrentIndex((prevIndex) => 
+    setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? slides.length - 1 : prevIndex - 1
     )
   }
@@ -50,38 +50,38 @@ const MainSlider = ({ slides, onSlideClick, title = "최신 슬라이드" }) => 
 
       <Card className="relative overflow-hidden">
         <CardContent className="p-0">
-          <div className="relative aspect-video bg-gradient-to-br from-blue-50 to-slate-100">
+          <div className="relative aspect-video bg-gradient-to-br from-blue-50 to-slate-100 min-h-[300px] md:min-h-[400px] lg:min-h-[600px] max-h-[80vh]">
             {/* 슬라이드 내용 */}
             <div className="absolute inset-0">
               {currentSlide.type === 'google' && currentSlide.embedUrl ? (
-                // 구글 슬라이드 임베드
-                <iframe
-                  src={currentSlide.embedUrl}
-                  className="w-full h-full border-0"
-                  allowFullScreen={true}
-                  mozallowfullscreen="true"
-                  webkitallowfullscreen="true"
-                  title={currentSlide.title}
-                />
+                // 구글 슬라이드 임베드 (aspect-ratio 내에서만 표시, 아래 텍스트 없음)
+                <div className="w-full h-full flex items-center justify-center">
+                  <iframe
+                    src={currentSlide.embedUrl}
+                    className="w-full h-full border-0 rounded-lg bg-white"
+                    allowFullScreen={true}
+                    mozallowfullscreen="true"
+                    webkitallowfullscreen="true"
+                    title={currentSlide.title}
+                  />
+                </div>
               ) : (
-                // 기본 슬라이드 표시
-                <div className="flex items-center justify-center p-8 h-full">
-                  <div className="text-center">
-                    <div className="w-20 h-20 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <Book className="w-10 h-10 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-slate-800 mb-2">
-                      {currentSlide.title}
-                    </h3>
-                    <p className="text-slate-600 mb-4">
-                      {currentSlide.content || currentSlide.description || '성경 교육 슬라이드'}
-                    </p>
-                    <div className="flex items-center justify-center space-x-2">
-                      <Badge variant="outline">
-                        {currentSlide.type === 'google' ? '구글 슬라이드' : 'PPT'}
-                      </Badge>
-                      <Badge variant="secondary">슬라이드 {currentIndex + 1}</Badge>
-                    </div>
+                // 기본 슬라이드 표시 (텍스트가 겹치지 않도록 레이아웃 보강)
+                <div className="flex flex-col items-center justify-center h-full w-full p-4 md:p-8 min-h-0 max-h-full overflow-y-auto">
+                  <div className="w-20 h-20 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-4 shrink-0">
+                    <Book className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800 mb-2 break-words line-clamp-2 w-full max-w-full">
+                    {currentSlide.title}
+                  </h3>
+                  <p className="text-slate-600 mb-4 break-words line-clamp-3 w-full max-w-full">
+                    {currentSlide.content || currentSlide.description || '성경 교육 슬라이드'}
+                  </p>
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    <Badge variant="outline">
+                      {currentSlide.type === 'google' ? '구글 슬라이드' : 'PPT'}
+                    </Badge>
+                    <Badge variant="secondary">슬라이드 {currentIndex + 1}</Badge>
                   </div>
                 </div>
               )}
@@ -115,9 +115,8 @@ const MainSlider = ({ slides, onSlideClick, title = "최신 슬라이드" }) => 
                 {slides.map((_, index) => (
                   <button
                     key={index}
-                    className={`w-3 h-3 rounded-full transition-colors shadow-lg ${
-                      index === currentIndex ? 'bg-blue-500' : 'bg-white/70'
-                    }`}
+                    className={`w-3 h-3 rounded-full transition-colors shadow-lg ${index === currentIndex ? 'bg-blue-500' : 'bg-white/70'
+                      }`}
                     onClick={() => setCurrentIndex(index)}
                   />
                 ))}
@@ -131,14 +130,6 @@ const MainSlider = ({ slides, onSlideClick, title = "최신 슬라이드" }) => 
               <div className="text-sm text-slate-600">
                 슬라이드 {currentIndex + 1} / {slides.length}
               </div>
-              <Button 
-                size="sm" 
-                onClick={() => onSlideClick && onSlideClick(currentSlide)}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                슬라이드 보기
-              </Button>
             </div>
           </div>
         </CardContent>

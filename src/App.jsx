@@ -23,6 +23,7 @@ function App() {
   const [currentSlides, setCurrentSlides] = useState([])
   const [showSlideViewer, setShowSlideViewer] = useState(false)
   const [selectedSlide, setSelectedSlide] = useState(null)
+  const [slideViewerFullscreen, setSlideViewerFullscreen] = useState(false)
   const [uploadedVideos, setUploadedVideos] = useState([])
   const [selectedVideo, setSelectedVideo] = useState(null)
   const [showVideoPlayer, setShowVideoPlayer] = useState(false)
@@ -133,6 +134,7 @@ function App() {
   const handleSlideClick = (slide) => {
     setSelectedSlide(slide)
     setShowSlideViewer(true)
+    setSlideViewerFullscreen(true)
   }
 
   const handleVideoClick = (video) => {
@@ -160,7 +162,11 @@ function App() {
           <div className="w-full max-w-6xl">
             <SlideViewer
               slides={[selectedSlide]}
-              onClose={() => setShowSlideViewer(false)}
+              isFullscreen={slideViewerFullscreen}
+              onClose={() => {
+                setShowSlideViewer(false)
+                setSlideViewerFullscreen(false)
+              }}
             />
           </div>
         </div>
@@ -261,65 +267,60 @@ function App() {
             {/* 성경 시간선 탐험 섹션 */}
             <section>
               <div className="text-center mb-8">
-                <h2 className={`text-4xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
-                  성경 시간선 탐험
-                </h2>
-                <p className={`text-lg ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-                  성경의 주요 인물들을 시간순으로 만나보세요
-                </p>
+                <h2 className={`text-4xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>성경 시간선 탐험</h2>
+                <p className={`text-lg ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>성경의 주요 인물들을 시간순으로 만나보세요</p>
               </div>
 
               {/* 인물 선택 */}
-              <div className="flex flex-wrap justify-center gap-4 mb-8">
+              <div className="flex flex-wrap justify-center gap-6 mb-8">
                 {biblicalCharacters.map((character) => (
                   <button
                     key={character.id}
                     onClick={() => setSelectedCharacter(character.id)}
-                    className={`p-4 rounded-lg border-2 transition-all ${selectedCharacter === character.id
-                      ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
-                      : isDarkMode ? 'border-slate-600 bg-slate-800 hover:border-slate-500' : 'border-gray-200 bg-white hover:border-gray-300'
-                      }`}
+                    className={`group p-5 rounded-2xl border-2 shadow-lg transition-all duration-200 cursor-pointer relative bg-gradient-to-br 
+                      ${selectedCharacter === character.id
+                        ? 'from-pink-400 to-red-400 border-red-500 scale-105'
+                        : isDarkMode
+                          ? 'from-slate-700 to-slate-900 border-slate-600 hover:from-pink-200 hover:to-red-200 hover:border-pink-400'
+                          : 'from-white to-slate-100 border-gray-200 hover:from-pink-100 hover:to-red-100 hover:border-pink-400'}
+                    `}
                   >
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-2 ${selectedCharacter === character.id ? 'bg-red-500' : isDarkMode ? 'bg-slate-700' : 'bg-gray-100'
-                      }`}>
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-2 shadow-md transition-all duration-200 
+                      ${selectedCharacter === character.id ? 'bg-red-500 scale-110' : isDarkMode ? 'bg-slate-800' : 'bg-gray-100'}`}
+                    >
                       <Book className={`w-8 h-8 ${selectedCharacter === character.id ? 'text-white' : isDarkMode ? 'text-slate-300' : 'text-gray-600'}`} />
                     </div>
-                    <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
-                      {character.name}
-                    </div>
-                    <div className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                      {character.period}
-                    </div>
+                    <div className={`text-base font-bold ${selectedCharacter === character.id ? 'text-white drop-shadow' : isDarkMode ? 'text-white' : 'text-slate-800'}`}>{character.name}</div>
+                    <div className={`text-xs ${selectedCharacter === character.id ? 'text-pink-100' : isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{character.period}</div>
                   </button>
                 ))}
               </div>
 
               {/* 선택된 인물 정보 */}
-              <Card className={`${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-800'} text-white`}>
-                <CardContent className="p-8">
-                  <div className="flex items-center space-x-4 mb-6">
-                    <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center">
-                      <Book className="w-10 h-10 text-white" />
+              <div className="flex justify-center">
+                <div className={`w-full max-w-2xl rounded-3xl shadow-2xl p-8 border-2 bg-gradient-to-br 
+                  ${isDarkMode ? 'from-slate-800 to-slate-900 border-slate-700' : 'from-pink-100 to-red-100 border-pink-200'}`}
+                >
+                  {currentCharacter ? (
+                    <div className="flex flex-col md:flex-row items-center gap-6">
+                      <div className="w-24 h-24 rounded-full bg-red-500 flex items-center justify-center shadow-lg mb-4 md:mb-0">
+                        <Book className="w-12 h-12 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-3xl font-extrabold mb-2 text-red-600">{currentCharacter.name}</h3>
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          <span className="inline-block bg-white/70 text-red-600 px-3 py-1 rounded-full text-xs font-semibold shadow">{currentCharacter.period}</span>
+                          <span className="inline-block bg-white/70 text-pink-600 px-3 py-1 rounded-full text-xs font-semibold shadow">난이도: {currentCharacter.difficulty}</span>
+                          <span className="inline-block bg-white/70 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold shadow">{currentCharacter.verse}</span>
+                        </div>
+                        <p className="text-base text-slate-700 dark:text-slate-200 mb-2">{currentCharacter.description}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-3xl font-bold">{currentCharacter.name}</h3>
-                      <p className="text-slate-300">{currentCharacter.period}</p>
-                      <p className="text-slate-400">{currentCharacter.description}</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-4">
-                    <Button className="bg-red-600 hover:bg-red-700">
-                      창세기
-                    </Button>
-                    <Button variant="outline" className="border-white text-white hover:bg-white hover:text-slate-800">
-                      첫 인간
-                    </Button>
-                    <Button variant="outline" className="border-white text-white hover:bg-white hover:text-slate-800">
-                      에덴동산
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  ) : (
+                    <div className="text-center text-slate-400">인물을 선택하세요</div>
+                  )}
+                </div>
+              </div>
             </section>
 
             {/* 최신 영상 섹션 */}
