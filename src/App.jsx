@@ -28,6 +28,12 @@ function App() {
   const [selectedVideo, setSelectedVideo] = useState(null)
   const [showVideoPlayer, setShowVideoPlayer] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const [quizText, setQuizText] = useState('')
+  const [quizPrompt, setQuizPrompt] = useState(`아래 텍스트를 3가지 퀴즈 유형별로 각각 3문제씩, 쉬운 난이도의 4지 선다형 객관식으로 만들어줘.\n각 문제는 반드시 question(문제), options(4개 배열), answer(정답 문자열) 필드를 포함해야 해.\n1. 카드 뒤집기: 구절과 출처를 매칭하는 문제\n2. 순서 기억: 구절을 단어 단위로 섞어서 순서 맞추기 문제\n3. 구절 맞추기: 구절의 일부를 빈칸으로 바꿔서 빈칸 채우기 문제\n\n입력 예시:\n태초에 하나님이 천지를 창조하시니라|창세기 1:1\n\n출력 예시(JSON, 반드시 JSON만 반환):\n{\n  \"cardFlip\": [{\"question\": \"태초에 하나님이 천지를 창조하시니라의 출처는?\", \"options\": [\"창세기 1:1\", \"요한복음 3:16\", \"시편 23:1\", \"마태복음 5:9\"], \"answer\": \"창세기 1:1\"}],\n  \"wordOrder\": [{\"question\": \"다음 단어를 올바른 순서로 배열하세요: 천지를 하나님이 창조하시니라 태초에\", \"options\": [\"태초에 하나님이 천지를 창조하시니라\", \"천지를 하나님이 창조하시니라 태초에\", \"하나님이 태초에 천지를 창조하시니라\", \"창세기 1:1\"], \"answer\": \"태초에 하나님이 천지를 창조하시니라\"}],\n  \"fillBlank\": [{\"question\": \"태초에 하나님이 ___를 창조하시니라\", \"options\": [\"천지\", \"사람\", \"빛\", \"물\"], \"answer\": \"천지\"}]\n}`)
+  const [quizQuestions, setQuizQuestions] = useState([])
+  const [quizAIQuestions, setQuizAIQuestions] = useState({ cardFlip: [], wordOrder: [], fillBlank: [] })
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiError, setAiError] = useState('')
 
   // 앱 시작 시 localStorage에서 업로드된 영상 불러오기
   useEffect(() => {
@@ -146,6 +152,70 @@ function App() {
     setIsDarkMode(!isDarkMode)
   }
 
+  // 퀴즈 텍스트 입력 핸들러
+  const handleQuizTextChange = (e) => {
+    setQuizText(e.target.value)
+  }
+
+  // 퀴즈 생성 핸들러: 텍스트를 문제/정답 배열로 파싱
+  const handleQuizCreate = () => {
+    // 각 줄을 문제로, |로 구분 (문제|정답)
+    const questions = quizText
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .map(line => {
+        const [question, answer] = line.split('|').map(s => s.trim())
+        return { question, answer }
+      })
+      .filter(q => q.question && q.answer)
+    setQuizQuestions(questions)
+  }
+
+  const handleQuizPromptChange = (e) => {
+    setQuizPrompt(e.target.value)
+  }
+
+  // AI로 퀴즈 생성 핸들러
+  const handleAIGenerateQuiz = async () => {
+    setAiLoading(true)
+    setAiError('')
+    try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`
+      const prompt = `${quizPrompt}\n\n아래 입력을 변환:\n${quizText}\n\n각 유형별로 반드시 3문제씩, 각 문제는 쉬운 난이도의 4지 선다형 객관식으로 만들어 JSON만 반환해줘.`
+      const body = { contents: [{ parts: [{ text: prompt }] }] }
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      const data = await response.json()
+      // Gemini 응답에서 JSON 파싱
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+      if (!text) throw new Error('AI 응답이 비어 있습니다.')
+      // 코드블록 제거 및 JSON 블록만 추출
+      let jsonText = text.trim();
+      if (jsonText.startsWith('```json')) {
+        jsonText = jsonText.replace(/^```json/, '').replace(/```$/, '').trim();
+      } else if (jsonText.startsWith('```')) {
+        jsonText = jsonText.replace(/^```/, '').replace(/```$/, '').trim();
+      }
+      const match = jsonText.match(/{[\s\S]*}/);
+      if (!match) throw new Error('AI 응답에서 JSON을 찾을 수 없습니다. 원본: ' + jsonText);
+      const aiQuiz = JSON.parse(match[0]);
+      setQuizAIQuestions({
+        cardFlip: aiQuiz.cardFlip || [],
+        wordOrder: aiQuiz.wordOrder || [],
+        fillBlank: aiQuiz.fillBlank || []
+      })
+    } catch (e) {
+      setAiError('AI 퀴즈 생성 실패: ' + (e.message || e))
+    } finally {
+      setAiLoading(false)
+    }
+  }
+
   const menuItems = [
     { id: 'home', label: '홈', icon: '🏠' },
     { id: 'word', label: '말씀', icon: '📖' },
@@ -189,9 +259,9 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <img src={logo} alt="성경 어린이 교실" className="w-8 h-8" />
+              <img src={logo} alt="BIBLE SCHOOL" className="w-8 h-8" />
               <h1 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
-                성경 어린이 교실
+                BIBLE SCHOOL
               </h1>
             </div>
 
@@ -347,6 +417,8 @@ function App() {
                 uploadedSlides={currentSlides}
                 uploadedVideos={uploadedVideos}
                 youtubeVideos={uploadedVideos.filter(v => v.type === 'youtube')}
+                quizQuestions={quizQuestions}
+                aiQuestions={quizAIQuestions}
               />
             </section>
           </div>
@@ -365,6 +437,14 @@ function App() {
             setSlideUrl={setSlideUrl}
             youtubeUrl={youtubeUrl}
             setYoutubeUrl={setYoutubeUrl}
+            quizText={quizText}
+            quizPrompt={quizPrompt}
+            onQuizPromptChange={handleQuizPromptChange}
+            onQuizTextChange={handleQuizTextChange}
+            onQuizCreate={handleQuizCreate}
+            onAIGenerateQuiz={handleAIGenerateQuiz}
+            aiLoading={aiLoading}
+            aiError={aiError}
           />
         )}
 
@@ -399,8 +479,8 @@ function App() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <img src={logo} alt="성경 어린이 교실" className="w-8 h-8" />
-                <h3 className="text-xl font-bold">성경 어린이 교실</h3>
+                <img src={logo} alt="BIBLE SCHOOL" className="w-8 h-8" />
+                <h3 className="text-xl font-bold">BIBLE SCHOOL</h3>
               </div>
               <p className="text-slate-300">
                 초중학생을 위한 성경 교육 플랫폼으로,
