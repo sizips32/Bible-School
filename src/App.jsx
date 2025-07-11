@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.jsx'
 import { Input } from '@/components/ui/input.jsx'
@@ -27,6 +27,20 @@ function App() {
   const [selectedVideo, setSelectedVideo] = useState(null)
   const [showVideoPlayer, setShowVideoPlayer] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
+
+  // 앱 시작 시 localStorage에서 업로드된 영상 불러오기
+  useEffect(() => {
+    const savedVideos = localStorage.getItem('uploadedVideos')
+    if (savedVideos) {
+      setUploadedVideos(JSON.parse(savedVideos))
+    }
+    // eslint-disable-next-line
+  }, []) // 반드시 []로 고정
+
+  // 업로드된 영상이 변경될 때마다 localStorage에 저장
+  useEffect(() => {
+    localStorage.setItem('uploadedVideos', JSON.stringify(uploadedVideos))
+  }, [uploadedVideos])
 
   // 성경 인물 데이터
   const biblicalCharacters = [
@@ -62,7 +76,8 @@ function App() {
       duration: '미정',
       likes: 0,
       type: 'file',
-      file: file
+      file: file,
+      url: URL.createObjectURL(file) // url 속성 추가
     }))
     setUploadedVideos(prev => [...prev, ...videoFiles])
   }
@@ -72,12 +87,12 @@ function App() {
       // 구글 슬라이드 URL에서 ID 추출
       const slideId = extractGoogleSlideId(slideUrl)
       let embedUrl = slideUrl
-      
+
       // 구글 슬라이드 URL인 경우 임베드 URL로 변환
       if (slideId) {
         embedUrl = `https://docs.google.com/presentation/d/${slideId}/embed?start=false&loop=false&delayms=3000`
       }
-      
+
       const newSlide = {
         id: `google_${Date.now()}`,
         title: '구글 슬라이드',
@@ -180,11 +195,10 @@ function App() {
                 <button
                   key={item.id}
                   onClick={() => setCurrentPage(item.id)}
-                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    currentPage === item.id
-                      ? isDarkMode ? 'bg-slate-700 text-white' : 'bg-blue-100 text-blue-700'
-                      : isDarkMode ? 'text-slate-300 hover:text-white hover:bg-slate-700' : 'text-slate-600 hover:text-slate-900 hover:bg-gray-100'
-                  }`}
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${currentPage === item.id
+                    ? isDarkMode ? 'bg-slate-700 text-white' : 'bg-blue-100 text-blue-700'
+                    : isDarkMode ? 'text-slate-300 hover:text-white hover:bg-slate-700' : 'text-slate-600 hover:text-slate-900 hover:bg-gray-100'
+                    }`}
                 >
                   <span>{item.icon}</span>
                   <span>{item.label}</span>
@@ -202,7 +216,7 @@ function App() {
               >
                 {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </Button>
-              
+
               <Button
                 variant="ghost"
                 size="sm"
@@ -225,11 +239,10 @@ function App() {
                       setCurrentPage(item.id)
                       setMobileMenuOpen(false)
                     }}
-                    className={`flex items-center space-x-2 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      currentPage === item.id
-                        ? isDarkMode ? 'bg-slate-700 text-white' : 'bg-blue-100 text-blue-700'
-                        : isDarkMode ? 'text-slate-300 hover:text-white hover:bg-slate-700' : 'text-slate-600 hover:text-slate-900 hover:bg-gray-100'
-                    }`}
+                    className={`flex items-center space-x-2 w-full px-3 py-2 rounded-md text-sm font-medium transition-colors ${currentPage === item.id
+                      ? isDarkMode ? 'bg-slate-700 text-white' : 'bg-blue-100 text-blue-700'
+                      : isDarkMode ? 'text-slate-300 hover:text-white hover:bg-slate-700' : 'text-slate-600 hover:text-slate-900 hover:bg-gray-100'
+                      }`}
                   >
                     <span>{item.icon}</span>
                     <span>{item.label}</span>
@@ -262,15 +275,13 @@ function App() {
                   <button
                     key={character.id}
                     onClick={() => setSelectedCharacter(character.id)}
-                    className={`p-4 rounded-lg border-2 transition-all ${
-                      selectedCharacter === character.id
-                        ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
-                        : isDarkMode ? 'border-slate-600 bg-slate-800 hover:border-slate-500' : 'border-gray-200 bg-white hover:border-gray-300'
-                    }`}
+                    className={`p-4 rounded-lg border-2 transition-all ${selectedCharacter === character.id
+                      ? 'border-red-500 bg-red-50 dark:bg-red-900/20'
+                      : isDarkMode ? 'border-slate-600 bg-slate-800 hover:border-slate-500' : 'border-gray-200 bg-white hover:border-gray-300'
+                      }`}
                   >
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-2 ${
-                      selectedCharacter === character.id ? 'bg-red-500' : isDarkMode ? 'bg-slate-700' : 'bg-gray-100'
-                    }`}>
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-2 ${selectedCharacter === character.id ? 'bg-red-500' : isDarkMode ? 'bg-slate-700' : 'bg-gray-100'
+                      }`}>
                       <Book className={`w-8 h-8 ${selectedCharacter === character.id ? 'text-white' : isDarkMode ? 'text-slate-300' : 'text-gray-600'}`} />
                     </div>
                     <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
@@ -313,8 +324,8 @@ function App() {
 
             {/* 최신 영상 섹션 */}
             <section>
-              <MainVideoGallery 
-                videos={uploadedVideos} 
+              <MainVideoGallery
+                videos={uploadedVideos}
                 onVideoClick={handleVideoClick}
                 title="최신 영상"
               />
@@ -322,8 +333,8 @@ function App() {
 
             {/* 최신 슬라이드 섹션 */}
             <section>
-              <MainSlider 
-                slides={currentSlides} 
+              <MainSlider
+                slides={currentSlides}
                 onSlideClick={handleSlideClick}
                 title="최신 슬라이드"
               />
@@ -331,7 +342,7 @@ function App() {
 
             {/* 퀴즈 게임 섹션 */}
             <section>
-              <QuizGames 
+              <QuizGames
                 uploadedSlides={currentSlides}
                 uploadedVideos={uploadedVideos}
                 youtubeVideos={uploadedVideos.filter(v => v.type === 'youtube')}

@@ -19,6 +19,8 @@ const VideoPlayer = ({ video, onClose }) => {
     return <YoutubeEmbed url={video.url} onClose={onClose} />
   }
 
+  const videoUrl = video.file ? URL.createObjectURL(video.file) : video.url
+
   const togglePlay = () => {
     if (videoRef.current) {
       if (isPlaying) {
@@ -106,16 +108,17 @@ const VideoPlayer = ({ video, onClose }) => {
       </CardHeader>
       <CardContent>
         <div className="relative bg-black rounded-lg overflow-hidden">
-          {video.url ? (
+          {videoUrl ? (
             <video
               ref={videoRef}
               className="w-full aspect-video"
+              src={videoUrl}
               onTimeUpdate={handleTimeUpdate}
               onLoadedMetadata={handleLoadedMetadata}
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
             >
-              <source src={video.url} type="video/mp4" />
+              <source src={videoUrl} type="video/mp4" />
               브라우저가 비디오를 지원하지 않습니다.
             </video>
           ) : (
@@ -131,11 +134,11 @@ const VideoPlayer = ({ video, onClose }) => {
           {/* 비디오 컨트롤 오버레이 */}
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
             {/* 진행 바 */}
-            <div 
+            <div
               className="w-full h-2 bg-white/30 rounded-full mb-4 cursor-pointer"
               onClick={handleSeek}
             >
-              <div 
+              <div
                 className="h-full bg-red-500 rounded-full"
                 style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
               />
@@ -160,11 +163,11 @@ const VideoPlayer = ({ video, onClose }) => {
                   {formatTime(currentTime)} / {formatTime(duration)}
                 </span>
               </div>
-              
+
               <div className="flex items-center space-x-3">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setLiked(!liked)}
                   className={liked ? 'text-red-500' : ''}
                 >
