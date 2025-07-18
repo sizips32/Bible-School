@@ -260,14 +260,14 @@ const ResourcesPage = ({
                     <span className="text-green-600 font-bold">⏰</span>
                   </div>
                   <h4 className="font-medium mb-2">순서 기억</h4>
-                  <p className="text-sm text-gray-600">단어 순서 맞추기</p>
+                  <p className="text-sm text-gray-600">섞인 단어 순서 맞추기</p>
                 </div>
                 <div className="p-4 border rounded-lg text-center">
                   <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
                     <span className="text-orange-600 font-bold">📝</span>
                   </div>
                   <h4 className="font-medium mb-2">구절 맞추기</h4>
-                  <p className="text-sm text-gray-600">빈칸 채우기 퀴즈</p>
+                  <p className="text-sm text-gray-600">핵심 단어 빈칸 채우기</p>
                 </div>
               </div>
             </CardContent>

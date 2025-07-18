@@ -29,7 +29,7 @@ function App() {
   const [showVideoPlayer, setShowVideoPlayer] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [quizText, setQuizText] = useState('')
-  const [quizPrompt, setQuizPrompt] = useState(`아래 텍스트를 3가지 퀴즈 유형별로 각각 7문제씩, 쉬운 난이도의 4지 선다형 객관식으로 만들어줘.\n각 문제는 반드시 question(문제), options(4개 배열), answer(정답 문자열) 필드를 포함해야 해.\n1. 카드 뒤집기: 구절과 출처를 매칭하는 문제\n2. 순서 기억: 구절을 단어 단위로 섞어서 순서 맞추기 문제\n3. 구절 맞추기: 구절의 일부를 빈칸으로 바꿔서 빈칸 채우기 문제\n\n입력 예시:\n태초에 하나님이 천지를 창조하시니라|창세기 1:1\n\n출력 예시(JSON, 반드시 JSON만 반환):\n{\n  \"cardFlip\": [{\"question\": \"태초에 하나님이 천지를 창조하시니라의 출처는?\", \"options\": [\"창세기 1:1\", \"요한복음 3:16\", \"시편 23:1\", \"마태복음 5:9\"], \"answer\": \"창세기 1:1\"}],\n  \"wordOrder\": [{\"question\": \"다음 단어를 올바른 순서로 배열하세요: 천지를 하나님이 창조하시니라 태초에\", \"options\": [\"태초에 하나님이 천지를 창조하시니라\", \"천지를 하나님이 창조하시니라 태초에\", \"하나님이 태초에 천지를 창조하시니라\", \"창세기 1:1\"], \"answer\": \"태초에 하나님이 천지를 창조하시니라\"}],\n  \"fillBlank\": [{\"question\": \"태초에 하나님이 ___를 창조하시니라\", \"options\": [\"천지\", \"사람\", \"빛\", \"물\"], \"answer\": \"천지\"}]\n}`)
+  const [quizPrompt, setQuizPrompt] = useState(`아래 텍스트를 3가지 퀴즈 유형별로 각각 7문제씩, 쉬운 난이도의 4지 선다형 객관식으로 만들어줘.\n각 문제는 반드시 question(문제), options(4개 배열), answer(정답 문자열) 필드를 포함해야 해.\n\n1. 카드 뒤집기: 구절과 출처를 매칭하는 문제\n2. 순서 기억: 구절의 단어들이 섞여있을 때 올바른 순서로 배열하는 문제 (단어들을 쉼표로 구분하여 제시)\n3. 구절 맞추기: 구절에서 중요한 단어나 구를 빈칸으로 바꿔서 빈칸 채우기 문제\n\n문제 생성 규칙:\n- 순서 기억: 원본 구절의 단어들을 섞어서 쉼표로 구분하여 제시하고, 올바른 순서의 구절을 선택하도록 함\n- 구절 맞추기: 핵심 단어나 구를 빈칸으로 만들고, 의미상 적절한 4개 옵션 제공\n- 모든 선택지는 의미있고 혼동할 수 있는 내용으로 구성\n\n입력 예시:\n태초에 하나님이 천지를 창조하시니라|창세기 1:1\n\n출력 예시(JSON, 반드시 JSON만 반환):\n{\n  \"cardFlip\": [{\"question\": \"태초에 하나님이 천지를 창조하시니라의 출처는?\", \"options\": [\"창세기 1:1\", \"요한복음 3:16\", \"시편 23:1\", \"마태복음 5:9\"], \"answer\": \"창세기 1:1\"}],\n  \"wordOrder\": [{\"question\": \"다음 단어들을 올바른 순서로 배열하세요: 천지를, 하나님이, 창조하시니라, 태초에\", \"options\": [\"태초에 하나님이 천지를 창조하시니라\", \"천지를 하나님이 창조하시니라 태초에\", \"하나님이 태초에 천지를 창조하시니라\", \"창조하시니라 태초에 하나님이 천지를\"], \"answer\": \"태초에 하나님이 천지를 창조하시니라\"}],\n  \"fillBlank\": [{\"question\": \"태초에 하나님이 ___를 창조하시니라\", \"options\": [\"천지\", \"사람\", \"빛\", \"물\"], \"answer\": \"천지\"}]\n}`)
   const [quizQuestions, setQuizQuestions] = useState([])
   const [quizAIQuestions, setQuizAIQuestions] = useState({ cardFlip: [], wordOrder: [], fillBlank: [] })
   const [aiLoading, setAiLoading] = useState(false)
@@ -41,7 +41,7 @@ function App() {
     if (savedVideos) {
       setUploadedVideos(JSON.parse(savedVideos))
     }
-    
+
     const savedSlides = localStorage.getItem('currentSlides')
     if (savedSlides) {
       setCurrentSlides(JSON.parse(savedSlides))

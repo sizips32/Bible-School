@@ -20,7 +20,7 @@ const QuizGames = ({ uploadedSlides, uploadedVideos, youtubeVideos, quizQuestion
     {
       id: 'cardFlip',
       title: '카드 뒤집기',
-      subtitle: '구절과 키워드 매칭',
+      subtitle: '구절과 출처 매칭',
       icon: Shuffle,
       color: 'bg-gradient-to-br from-blue-500 to-blue-600',
       description: '성경 구절과 출처를 매칭해보세요'
@@ -31,7 +31,7 @@ const QuizGames = ({ uploadedSlides, uploadedVideos, youtubeVideos, quizQuestion
       subtitle: '단어 순서 맞추기',
       icon: Clock,
       color: 'bg-gradient-to-br from-green-500 to-green-600',
-      description: '단어들을 올바른 순서로 배열해보세요'
+      description: '섞인 단어들을 올바른 순서로 배열해보세요'
     },
     {
       id: 'fillBlank',
@@ -39,7 +39,7 @@ const QuizGames = ({ uploadedSlides, uploadedVideos, youtubeVideos, quizQuestion
       subtitle: '빈칸 채우기 퀴즈',
       icon: FileText,
       color: 'bg-gradient-to-br from-orange-500 to-orange-600',
-      description: '빈칸에 들어갈 올바른 단어를 선택해보세요'
+      description: '빈칸에 들어갈 핵심 단어를 선택해보세요'
     }
   ]
 
