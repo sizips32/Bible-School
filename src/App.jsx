@@ -447,7 +447,7 @@ function App() {
                 <h2 className={`text-4xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>하나님의 십계명</h2>
                 <p className={`text-lg ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>시내산에서 모세에게 주신 하나님의 말씀</p>
               </div>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* 첫 번째 돌비 */}
                 <div className={`rounded-2xl shadow-2xl p-8 border-2 bg-gradient-to-br ${isDarkMode ? 'from-amber-900 to-yellow-800 border-amber-700' : 'from-amber-100 to-yellow-100 border-amber-300'}`}>
@@ -458,7 +458,7 @@ function App() {
                     <h3 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>첫 번째 돌비</h3>
                     <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>하나님과의 관계 (1-4계명)</p>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
                       <div className="flex items-start gap-3">
@@ -469,7 +469,7 @@ function App() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>2</span>
@@ -479,7 +479,7 @@ function App() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>3</span>
@@ -489,7 +489,7 @@ function App() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>4</span>
@@ -511,7 +511,7 @@ function App() {
                     <h3 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>두 번째 돌비</h3>
                     <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>이웃과의 관계 (5-10계명)</p>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
                       <div className="flex items-start gap-3">
@@ -522,7 +522,7 @@ function App() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>6</span>
@@ -532,7 +532,7 @@ function App() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>7</span>
@@ -542,7 +542,7 @@ function App() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>8</span>
@@ -552,7 +552,7 @@ function App() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>9</span>
@@ -562,7 +562,7 @@ function App() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>10</span>
@@ -575,7 +575,7 @@ function App() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="text-center mt-8">
                 <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
                   출애굽기 20:1-17 | 시내산에서 모세에게 주신 하나님의 말씀
@@ -671,7 +671,7 @@ function App() {
             </div>
           </div>
           <div className="border-t border-slate-700 mt-8 pt-8 text-center">
-            <p className="text-slate-400">© 2024 BIBLE SCHOOL. 모든 권리 보유.</p>
+            <p className="text-slate-400">© 2025 BIBLE SCHOOL. 모든 권리 보유.</p>
           </div>
         </div>
       </footer>
