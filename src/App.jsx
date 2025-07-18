@@ -440,6 +440,148 @@ function App() {
                 aiQuestions={quizAIQuestions}
               />
             </section>
+
+            {/* 십계명 섹션 */}
+            <section>
+              <div className="text-center mb-8">
+                <h2 className={`text-4xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>하나님의 십계명</h2>
+                <p className={`text-lg ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>시내산에서 모세에게 주신 하나님의 말씀</p>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* 첫 번째 돌비 */}
+                <div className={`rounded-2xl shadow-2xl p-8 border-2 bg-gradient-to-br ${isDarkMode ? 'from-amber-900 to-yellow-800 border-amber-700' : 'from-amber-100 to-yellow-100 border-amber-300'}`}>
+                  <div className="text-center mb-6">
+                    <div className={`w-16 h-16 rounded-full ${isDarkMode ? 'bg-amber-700' : 'bg-amber-500'} flex items-center justify-center mx-auto mb-4`}>
+                      <span className="text-2xl">📜</span>
+                    </div>
+                    <h3 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>첫 번째 돌비</h3>
+                    <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>하나님과의 관계 (1-4계명)</p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
+                      <div className="flex items-start gap-3">
+                        <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>1</span>
+                        <div>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>나 외에는 다른 신들을 네게 있게 말지 말라</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>하나님만을 섬기고 다른 신을 섬기지 말라</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
+                      <div className="flex items-start gap-3">
+                        <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>2</span>
+                        <div>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>너를 위하여 새긴 우상을 만들지 말라</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>우상을 만들거나 섬기지 말라</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
+                      <div className="flex items-start gap-3">
+                        <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>3</span>
+                        <div>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>너의 하나님 여호와의 이름을 망령되이 일컫지 말라</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>하나님의 이름을 함부로 사용하지 말라</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
+                      <div className="flex items-start gap-3">
+                        <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>4</span>
+                        <div>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>안식일을 기억하여 거룩하게 지키라</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>일곱째 날을 거룩하게 지켜라</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 두 번째 돌비 */}
+                <div className={`rounded-2xl shadow-2xl p-8 border-2 bg-gradient-to-br ${isDarkMode ? 'from-amber-900 to-yellow-800 border-amber-700' : 'from-amber-100 to-yellow-100 border-amber-300'}`}>
+                  <div className="text-center mb-6">
+                    <div className={`w-16 h-16 rounded-full ${isDarkMode ? 'bg-amber-700' : 'bg-amber-500'} flex items-center justify-center mx-auto mb-4`}>
+                      <span className="text-2xl">📜</span>
+                    </div>
+                    <h3 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>두 번째 돌비</h3>
+                    <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>이웃과의 관계 (5-10계명)</p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
+                      <div className="flex items-start gap-3">
+                        <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>5</span>
+                        <div>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>네 부모를 공경하라</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>부모를 존경하고 순종하라</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
+                      <div className="flex items-start gap-3">
+                        <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>6</span>
+                        <div>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>살인하지 말라</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>사람의 생명을 해치지 말라</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
+                      <div className="flex items-start gap-3">
+                        <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>7</span>
+                        <div>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>간음하지 말라</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>순결한 삶을 살라</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
+                      <div className="flex items-start gap-3">
+                        <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>8</span>
+                        <div>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>도적질하지 말라</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>남의 것을 훔치지 말라</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
+                      <div className="flex items-start gap-3">
+                        <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>9</span>
+                        <div>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>네 이웃에 대하여 거짓 증거하지 말라</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>거짓말하지 말라</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-amber-800/50' : 'bg-amber-200/50'}`}>
+                      <div className="flex items-start gap-3">
+                        <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>10</span>
+                        <div>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>네 이웃의 것을 탐내지 말라</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>남의 것을 부러워하지 말라</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-center mt-8">
+                <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                  출애굽기 20:1-17 | 시내산에서 모세에게 주신 하나님의 말씀
+                </p>
+              </div>
+            </section>
           </div>
         )}
 
@@ -529,7 +671,7 @@ function App() {
             </div>
           </div>
           <div className="border-t border-slate-700 mt-8 pt-8 text-center">
-            <p className="text-slate-400">© 2024 성경 어린이 교실. 모든 권리 보유.</p>
+            <p className="text-slate-400">© 2024 BIBLE SCHOOL. 모든 권리 보유.</p>
           </div>
         </div>
       </footer>
