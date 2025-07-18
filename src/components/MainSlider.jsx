@@ -32,8 +32,8 @@ const MainSlider = ({ slides, onSlideClick, title = "최신 슬라이드" }) => 
       <Card className="w-full">
         <CardContent className="p-8 text-center">
           <Book className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-slate-600 mb-2">슬라이드가 없습니다</h3>
-          <p className="text-slate-500">자료실에서 슬라이드를 업로드해주세요</p>
+          <h3 className="text-lg font-medium text-slate-600 mb-2">업로드된 슬라이드가 없습니다</h3>
+          <p className="text-slate-500">자료실에서 PPT 파일을 업로드하거나 구글 슬라이드를 연결해주세요</p>
         </CardContent>
       </Card>
     )

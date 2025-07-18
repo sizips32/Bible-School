@@ -7,18 +7,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.j
 import { Book, Upload, Play, ExternalLink, Youtube, FileText, Video } from 'lucide-react'
 import FileUpload from './FileUpload.jsx'
 
-const ResourcesPage = ({ 
-  onFileUpload, 
-  onVideoUpload, 
-  onSlideUrlSubmit, 
+const ResourcesPage = ({
+  onFileUpload,
+  onVideoUpload,
+  onSlideUrlSubmit,
   onYoutubeUrlSubmit,
-  uploadedFiles, 
+  uploadedFiles,
   uploadedVideos,
   currentSlides,
   slideUrl,
   setSlideUrl,
   youtubeUrl,
-  setYoutubeUrl
+  setYoutubeUrl,
+  quizText,
+  onQuizTextChange,
+  onQuizCreate,
+  onAIGenerateQuiz,
+  aiLoading,
+  aiError,
+  quizPrompt,
+  onQuizPromptChange,
+  aiQuestions
 }) => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -143,6 +152,16 @@ const ResourcesPage = ({
 
         {/* 퀴즈 게임 자료 탭 */}
         <TabsContent value="quiz" className="space-y-6">
+          <div className="mb-6">
+            <label className="block text-sm font-medium mb-2">AI 퀴즈 프롬프트 (예시/규칙/출력형식 등)</label>
+            <textarea
+              className="w-full p-3 border border-blue-300 rounded-md resize-none bg-blue-50 text-blue-900 mb-4"
+              rows="7"
+              value={quizPrompt}
+              onChange={onQuizPromptChange}
+              placeholder="AI에게 보낼 프롬프트를 입력하세요. 예시, 규칙, 출력형식 등 자유롭게 작성 가능."
+            />
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* 퀴즈 텍스트 입력 */}
             <Card>
@@ -158,23 +177,24 @@ const ResourcesPage = ({
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">퀴즈 제목</label>
-                    <Input
-                      type="text"
-                      placeholder="예: 창세기 1장 퀴즈"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">퀴즈 내용</label>
+                    <label className="block text-sm font-medium mb-2">퀴즈 내용 (문제|정답, 한 줄에 하나씩)</label>
                     <textarea
                       className="w-full p-3 border border-gray-300 rounded-md resize-none"
                       rows="6"
-                      placeholder="성경 구절이나 퀴즈 내용을 입력하세요..."
+                      placeholder="예: 태초에 하나님이 천지를 창조하시니라|창세기 1:1"
+                      value={quizText}
+                      onChange={onQuizTextChange}
                     />
                   </div>
-                  <Button className="w-full">
-                    퀴즈 생성하기
-                  </Button>
+                  <div className="flex flex-col gap-2">
+                    <Button className="w-full" onClick={onQuizCreate}>
+                      수동 퀴즈 생성하기
+                    </Button>
+                    <Button className="w-full bg-gradient-to-r from-blue-500 to-pink-500 text-white" onClick={onAIGenerateQuiz} disabled={aiLoading}>
+                      {aiLoading ? 'AI로 퀴즈 생성 중...' : 'AI로 퀴즈 생성(Gemini)'}
+                    </Button>
+                    {aiError && <div className="text-red-500 text-sm mt-2">{aiError}</div>}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -207,6 +227,16 @@ const ResourcesPage = ({
               </CardContent>
             </Card>
           </div>
+
+          {/* AI 생성 결과 미리보기 및 정답 확인 */}
+          {aiQuestions && (
+            <div className="mt-8">
+              <h3 className="text-xl font-bold mb-4 text-blue-700">AI가 생성한 퀴즈 미리보기</h3>
+              {['cardFlip', 'wordOrder', 'fillBlank'].map(type => (
+                <AIPreviewQuizSection key={type} type={type} questions={aiQuestions[type]} />
+              ))}
+            </div>
+          )}
 
           {/* 퀴즈 게임 설정 */}
           <Card>
@@ -249,4 +279,47 @@ const ResourcesPage = ({
 }
 
 export default ResourcesPage
+
+
+// AI 퀴즈 미리보기/정답 확인 UI
+function AIPreviewQuizSection({ type, questions }) {
+  const [userAnswers, setUserAnswers] = React.useState(Array(questions.length).fill(''))
+  const [showResults, setShowResults] = React.useState(Array(questions.length).fill(false))
+  if (!questions || questions.length === 0) return null
+  const typeLabel = type === 'cardFlip' ? '카드 뒤집기' : type === 'wordOrder' ? '순서 기억' : '구절 맞추기'
+  return (
+    <div className="mb-8">
+      <h4 className="text-lg font-semibold mb-2 text-blue-600">{typeLabel} 문제</h4>
+      <div className="space-y-4">
+        {questions.map((q, i) => (
+          <div key={i} className="p-4 border rounded-lg bg-blue-50">
+            <div className="mb-2 font-medium">Q{i + 1}. {q.question}</div>
+            <input
+              className="border rounded px-3 py-1 w-full max-w-md mb-2"
+              type="text"
+              placeholder="정답을 입력하세요"
+              value={userAnswers[i]}
+              onChange={e => {
+                const arr = [...userAnswers]; arr[i] = e.target.value; setUserAnswers(arr);
+              }}
+              disabled={showResults[i]}
+            />
+            {showResults[i] && (
+              <div className={`mt-1 text-sm font-bold ${userAnswers[i].trim() === q.answer.trim() ? 'text-green-600' : 'text-red-600'}`}>{userAnswers[i].trim() === q.answer.trim() ? '정답입니다!' : `오답입니다. 정답: ${q.answer}`}</div>
+            )}
+            <button
+              className={`mt-2 px-3 py-1 rounded text-white text-sm ${showResults[i] ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+              onClick={() => {
+                const arr = [...showResults]; arr[i] = true; setShowResults(arr);
+              }}
+              disabled={showResults[i]}
+            >
+              {showResults[i] ? '확인 완료' : '정답 확인'}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 

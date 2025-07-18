@@ -405,7 +405,7 @@ function App() {
             {/* 최신 슬라이드 섹션 */}
             <section>
               <MainSlider
-                slides={currentSlides}
+                slides={currentSlides.filter(slide => slide.type === 'file' || slide.type === 'google')}
                 onSlideClick={handleSlideClick}
                 title="최신 슬라이드"
               />
