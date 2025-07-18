@@ -13,7 +13,9 @@ import MainVideoGallery from './components/MainVideoGallery.jsx'
 import QuizGames from './components/QuizGames.jsx'
 import BibleExplorer from './components/BibleExplorer.jsx'
 import SDADoctrines from './components/SDADoctrines.jsx'
+import SpiritOfProphecy from './components/SpiritOfProphecy.jsx';
 import './App.css'
+import { saveToLocalStorage, loadFromLocalStorage } from './lib/localStorage';
 
 function App() {
   const [selectedCharacter, setSelectedCharacter] = useState('adam')
@@ -40,28 +42,20 @@ function App() {
   // YouTube API 키 (실제 사용시 환경변수로 관리)
   const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY || 'YOUR_YOUTUBE_API_KEY' // 실제 API 키로 교체 필요
 
-  // 앱 시작 시 localStorage에서 업로드된 영상과 슬라이드 불러오기
+  // 앱 시작 시 localStorage에서 자료 불러오기
   useEffect(() => {
-    const savedVideos = localStorage.getItem('uploadedVideos')
-    if (savedVideos) {
-      setUploadedVideos(JSON.parse(savedVideos))
-    }
-
-    const savedSlides = localStorage.getItem('currentSlides')
-    if (savedSlides) {
-      setCurrentSlides(JSON.parse(savedSlides))
-    }
-    // eslint-disable-next-line
-  }, []) // 반드시 []로 고정
+    setUploadedVideos(loadFromLocalStorage('uploadedVideos'));
+    setCurrentSlides(loadFromLocalStorage('currentSlides'));
+  }, []);
 
   // 업로드된 영상이 변경될 때마다 localStorage에 저장
   useEffect(() => {
-    localStorage.setItem('uploadedVideos', JSON.stringify(uploadedVideos))
-  }, [uploadedVideos])
+    saveToLocalStorage('uploadedVideos', uploadedVideos);
+  }, [uploadedVideos]);
 
   // 슬라이드가 변경될 때마다 localStorage에 저장
   useEffect(() => {
-    localStorage.setItem('currentSlides', JSON.stringify(currentSlides))
+    saveToLocalStorage('currentSlides', currentSlides);
     // 개발용: 슬라이드 개수 확인
     console.log('현재 슬라이드 개수:', currentSlides.length)
     console.log('슬라이드 데이터:', currentSlides)
@@ -255,11 +249,18 @@ function App() {
     setQuizPrompt(e.target.value)
   }
 
-  // 슬라이드 데이터 초기화 (개발용)
+  // 자료 초기화 예시 (슬라이드)
   const clearSlides = () => {
-    setCurrentSlides([])
-    localStorage.removeItem('currentSlides')
-  }
+    setCurrentSlides([]);
+    saveToLocalStorage('currentSlides', []);
+  };
+
+  // 영상 삭제 예시
+  const handleDeleteVideo = (videoId) => {
+    const updated = uploadedVideos.filter(v => v.id !== videoId);
+    setUploadedVideos(updated);
+    saveToLocalStorage('uploadedVideos', updated);
+  };
 
   // AI로 퀴즈 생성 핸들러
   const handleAIGenerateQuiz = async () => {
@@ -305,7 +306,7 @@ function App() {
     { id: 'home', label: '홈', icon: '🏠' },
     { id: 'word', label: '말씀', icon: '📖' },
     { id: 'doctrine', label: '교리', icon: '⛪' },
-    { id: 'prophecy', label: '예언의 신', icon: '🕊️' },
+    { id: 'sop', label: '예언의 신', icon: '🕊️' },
     { id: 'resources', label: '자료실', icon: '📚' }
   ]
 
@@ -683,51 +684,8 @@ function App() {
           <SDADoctrines isDarkMode={isDarkMode} />
         )}
 
-        {currentPage === 'prophecy' && (
-          <div className={`p-8 rounded-lg ${isDarkMode ? 'bg-slate-800' : 'bg-white'} shadow-lg`}>
-            <div className="text-center mb-12">
-              <h2 className={`text-4xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>예언의 신</h2>
-              <p className={`text-lg ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>엘렌 G. 화잇의 생애와 주요 저서를 소개합니다.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-              <div className="md:col-span-1 flex justify-center">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Ellen_G_White_c_1899.jpg/800px-Ellen_G_White_c_1899.jpg" alt="엘렌 G. 화잇" className="rounded-lg shadow-md"/>
-              </div>
-              <div className="md:col-span-2">
-                <h3 className={`text-2xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>엘렌 G. 화잇 (Ellen G. White)</h3>
-                <p className={`mb-4 ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
-                  엘렌 G. 화잇(1827-1915)은 제칠일안식일예수재림교회의 초기 개척자 중 한 명으로, 하나님으로부터 2,000번 이상의 환상과 꿈을 통해 영감적인 기별을 받았습니다. 그녀는 성경 주석, 교육, 건강, 가정 등 다양한 주제에 걸쳐 40권 이상의 책과 5,000개 이상의 기사를 저술했습니다. 그녀의 저작들은 전 세계적으로 수많은 사람들에게 영적인 통찰과 인도를 제공하고 있습니다.
-                </p>
-                <Button variant="outline" onClick={() => window.open('https://www.whiteestate.org/', '_blank')}>
-                  더 알아보기 <ExternalLink className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div>
-              <h3 className={`text-3xl font-bold text-center mb-8 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>대쟁투 총서 (The Great Controversy Series)</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-                {[
-                  { title: '부조와 선지자', description: '세상의 시작부터 다윗의 통치까지' },
-                  { title: '선지자와 왕', description: '솔로몬의 통치부터 이스라엘의 멸망까지' },
-                  { title: '시대의 소망', description: '예수 그리스도의 생애와 사역' },
-                  { title: '사도행적', description: '초대 교회의 역사와 사도들의 활동' },
-                  { title: '각 시대의 대쟁투', description: '선과 악의 마지막 대결과 미래' },
-                ].map((book, index) => (
-                  <Card key={index} className={`${isDarkMode ? 'bg-slate-700' : 'bg-slate-100'}`}>
-                    <img src={`https://via.placeholder.com/150x200.png?text=${book.title}`} alt={book.title} className="rounded-t-lg"/>
-                    <CardHeader>
-                      <CardTitle className={`${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{book.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className={`${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{book.description}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </div>
+        {currentPage === 'sop' && (
+          <SpiritOfProphecy isDarkMode={isDarkMode} />
         )}
       </main>
 
