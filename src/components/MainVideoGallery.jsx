@@ -32,16 +32,26 @@ const MainVideoGallery = ({ videos, onVideoClick, title = "최신 영상" }) => 
               <CardContent className="p-0">
                 {/* 영상 썸네일 */}
                 <div className="relative aspect-video bg-gradient-to-br from-slate-800 to-slate-900">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center text-white">
-                      {video.type === 'youtube' ? (
-                        <Youtube className="w-12 h-12 mx-auto mb-2 text-red-500" />
-                      ) : (
-                        <Play className="w-12 h-12 mx-auto mb-2" />
-                      )}
-                      <p className="text-sm opacity-80">{video.duration || '5분 32초'}</p>
+                  {video.thumbnail ? (
+                    // YouTube 썸네일 표시
+                    <img
+                      src={video.thumbnail}
+                      alt={video.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    // 기본 썸네일 (파일 업로드 영상용)
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-center text-white">
+                        {video.type === 'youtube' ? (
+                          <Youtube className="w-12 h-12 mx-auto mb-2 text-red-500" />
+                        ) : (
+                          <Play className="w-12 h-12 mx-auto mb-2" />
+                        )}
+                        <p className="text-sm opacity-80">{video.duration || '5분 32초'}</p>
+                      </div>
                     </div>
-                  </div>
+                  )}
                   {/* 재생 버튼 오버레이 */}
                   <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
                     <Button
