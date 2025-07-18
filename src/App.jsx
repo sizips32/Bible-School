@@ -14,6 +14,7 @@ import QuizGames from './components/QuizGames.jsx'
 import BibleExplorer from './components/BibleExplorer.jsx'
 import SDADoctrines from './components/SDADoctrines.jsx'
 import SpiritOfProphecy from './components/SpiritOfProphecy.jsx';
+import MeditationPage from './components/MeditationPage.jsx';
 import './App.css'
 import { saveToLocalStorage, loadFromLocalStorage } from './lib/localStorage';
 
@@ -307,6 +308,7 @@ function App() {
     { id: 'word', label: '말씀', icon: '📖' },
     { id: 'doctrine', label: '교리', icon: '⛪' },
     { id: 'sop', label: '예언의 신', icon: '🕊️' },
+    { id: 'meditation', label: '묵상', icon: '🧘' },
     { id: 'resources', label: '자료실', icon: '📚' }
   ]
 
@@ -686,6 +688,10 @@ function App() {
 
         {currentPage === 'sop' && (
           <SpiritOfProphecy isDarkMode={isDarkMode} />
+        )}
+
+        {currentPage === 'meditation' && (
+          <MeditationPage isDarkMode={isDarkMode} />
         )}
       </main>
 
