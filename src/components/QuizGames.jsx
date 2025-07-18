@@ -82,7 +82,7 @@ const QuizGames = ({ uploadedSlides, uploadedVideos, youtubeVideos, quizQuestion
   if (selectedGame) {
     // 각 게임별로 AI 문제 배열 사용
     const gameKey = selectedGame === 'cardFlip' ? 'cardFlip' : selectedGame === 'wordOrder' ? 'wordOrder' : 'fillBlank'
-    const questions = aiQuestions[gameKey] && aiQuestions[gameKey].length > 0 ? aiQuestions[gameKey].slice(0, 3) : quizQuestions.slice(0, 3)
+    const questions = aiQuestions[gameKey] && aiQuestions[gameKey].length > 0 ? aiQuestions[gameKey].slice(0, 7) : quizQuestions.slice(0, 7)
 
     // 퀴즈 문제 없을 때 안내
     if (!questions || questions.length === 0) {

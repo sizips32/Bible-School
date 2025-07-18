@@ -29,17 +29,22 @@ function App() {
   const [showVideoPlayer, setShowVideoPlayer] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [quizText, setQuizText] = useState('')
-  const [quizPrompt, setQuizPrompt] = useState(`아래 텍스트를 3가지 퀴즈 유형별로 각각 3문제씩, 쉬운 난이도의 4지 선다형 객관식으로 만들어줘.\n각 문제는 반드시 question(문제), options(4개 배열), answer(정답 문자열) 필드를 포함해야 해.\n1. 카드 뒤집기: 구절과 출처를 매칭하는 문제\n2. 순서 기억: 구절을 단어 단위로 섞어서 순서 맞추기 문제\n3. 구절 맞추기: 구절의 일부를 빈칸으로 바꿔서 빈칸 채우기 문제\n\n입력 예시:\n태초에 하나님이 천지를 창조하시니라|창세기 1:1\n\n출력 예시(JSON, 반드시 JSON만 반환):\n{\n  \"cardFlip\": [{\"question\": \"태초에 하나님이 천지를 창조하시니라의 출처는?\", \"options\": [\"창세기 1:1\", \"요한복음 3:16\", \"시편 23:1\", \"마태복음 5:9\"], \"answer\": \"창세기 1:1\"}],\n  \"wordOrder\": [{\"question\": \"다음 단어를 올바른 순서로 배열하세요: 천지를 하나님이 창조하시니라 태초에\", \"options\": [\"태초에 하나님이 천지를 창조하시니라\", \"천지를 하나님이 창조하시니라 태초에\", \"하나님이 태초에 천지를 창조하시니라\", \"창세기 1:1\"], \"answer\": \"태초에 하나님이 천지를 창조하시니라\"}],\n  \"fillBlank\": [{\"question\": \"태초에 하나님이 ___를 창조하시니라\", \"options\": [\"천지\", \"사람\", \"빛\", \"물\"], \"answer\": \"천지\"}]\n}`)
+  const [quizPrompt, setQuizPrompt] = useState(`아래 텍스트를 3가지 퀴즈 유형별로 각각 7문제씩, 쉬운 난이도의 4지 선다형 객관식으로 만들어줘.\n각 문제는 반드시 question(문제), options(4개 배열), answer(정답 문자열) 필드를 포함해야 해.\n1. 카드 뒤집기: 구절과 출처를 매칭하는 문제\n2. 순서 기억: 구절을 단어 단위로 섞어서 순서 맞추기 문제\n3. 구절 맞추기: 구절의 일부를 빈칸으로 바꿔서 빈칸 채우기 문제\n\n입력 예시:\n태초에 하나님이 천지를 창조하시니라|창세기 1:1\n\n출력 예시(JSON, 반드시 JSON만 반환):\n{\n  \"cardFlip\": [{\"question\": \"태초에 하나님이 천지를 창조하시니라의 출처는?\", \"options\": [\"창세기 1:1\", \"요한복음 3:16\", \"시편 23:1\", \"마태복음 5:9\"], \"answer\": \"창세기 1:1\"}],\n  \"wordOrder\": [{\"question\": \"다음 단어를 올바른 순서로 배열하세요: 천지를 하나님이 창조하시니라 태초에\", \"options\": [\"태초에 하나님이 천지를 창조하시니라\", \"천지를 하나님이 창조하시니라 태초에\", \"하나님이 태초에 천지를 창조하시니라\", \"창세기 1:1\"], \"answer\": \"태초에 하나님이 천지를 창조하시니라\"}],\n  \"fillBlank\": [{\"question\": \"태초에 하나님이 ___를 창조하시니라\", \"options\": [\"천지\", \"사람\", \"빛\", \"물\"], \"answer\": \"천지\"}]\n}`)
   const [quizQuestions, setQuizQuestions] = useState([])
   const [quizAIQuestions, setQuizAIQuestions] = useState({ cardFlip: [], wordOrder: [], fillBlank: [] })
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState('')
 
-  // 앱 시작 시 localStorage에서 업로드된 영상 불러오기
+  // 앱 시작 시 localStorage에서 업로드된 영상과 슬라이드 불러오기
   useEffect(() => {
     const savedVideos = localStorage.getItem('uploadedVideos')
     if (savedVideos) {
       setUploadedVideos(JSON.parse(savedVideos))
+    }
+    
+    const savedSlides = localStorage.getItem('currentSlides')
+    if (savedSlides) {
+      setCurrentSlides(JSON.parse(savedSlides))
     }
     // eslint-disable-next-line
   }, []) // 반드시 []로 고정
@@ -48,6 +53,14 @@ function App() {
   useEffect(() => {
     localStorage.setItem('uploadedVideos', JSON.stringify(uploadedVideos))
   }, [uploadedVideos])
+
+  // 슬라이드가 변경될 때마다 localStorage에 저장
+  useEffect(() => {
+    localStorage.setItem('currentSlides', JSON.stringify(currentSlides))
+    // 개발용: 슬라이드 개수 확인
+    console.log('현재 슬라이드 개수:', currentSlides.length)
+    console.log('슬라이드 데이터:', currentSlides)
+  }, [currentSlides])
 
   // 성경 인물 데이터
   const biblicalCharacters = [
@@ -176,6 +189,12 @@ function App() {
     setQuizPrompt(e.target.value)
   }
 
+  // 슬라이드 데이터 초기화 (개발용)
+  const clearSlides = () => {
+    setCurrentSlides([])
+    localStorage.removeItem('currentSlides')
+  }
+
   // AI로 퀴즈 생성 핸들러
   const handleAIGenerateQuiz = async () => {
     setAiLoading(true)
@@ -183,7 +202,7 @@ function App() {
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`
-      const prompt = `${quizPrompt}\n\n아래 입력을 변환:\n${quizText}\n\n각 유형별로 반드시 3문제씩, 각 문제는 쉬운 난이도의 4지 선다형 객관식으로 만들어 JSON만 반환해줘.`
+      const prompt = `${quizPrompt}\n\n아래 입력을 변환:\n${quizText}\n\n각 유형별로 반드시 7문제씩, 각 문제는 쉬운 난이도의 4지 선다형 객관식으로 만들어 JSON만 반환해줘.`
       const body = { contents: [{ parts: [{ text: prompt }] }] }
       const response = await fetch(url, {
         method: 'POST',
