@@ -15,10 +15,13 @@ import BibleExplorer from './components/BibleExplorer.jsx'
 import SDADoctrines from './components/SDADoctrines.jsx'
 import SpiritOfProphecy from './components/SpiritOfProphecy.jsx';
 import MeditationPage from './components/MeditationPage.jsx';
+import LanguageSelector from './components/LanguageSelector.jsx';
 import './App.css'
 import { saveToLocalStorage, loadFromLocalStorage } from './lib/localStorage';
+import { useTranslation } from './lib/i18n.js';
 
 function App() {
+  const { language, changeLanguage, t } = useTranslation()
   const [selectedCharacter, setSelectedCharacter] = useState('adam')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState('home')
@@ -34,7 +37,7 @@ function App() {
   const [showVideoPlayer, setShowVideoPlayer] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [quizText, setQuizText] = useState('')
-  const [quizPrompt, setQuizPrompt] = useState(`아래 텍스트를 3가지 퀴즈 유형별로 각각 7문제씩, 쉬운 난이도의 4지 선다형 객관식으로 만들어줘.\n각 문제는 반드시 question(문제), options(4개 배열), answer(정답 문자열) 필드를 포함해야 해.\n\n1. 카드 뒤집기: 구절과 출처를 매칭하는 문제\n2. 순서 기억: 구절의 단어들이 섞여있을 때 올바른 순서로 배열하는 문제 (단어들을 쉼표로 구분하여 제시)\n3. 구절 맞추기: 구절에서 중요한 단어나 구를 빈칸으로 바꿔서 빈칸 채우기 문제\n\n문제 생성 규칙:\n- 각 유형별로 서로 다른 구절이나 내용을 사용하여 중복을 피하라\n- 카드 뒤집기: 구절과 출처 매칭에 집중\n- 순서 기억: 원본 구절의 단어들을 섞어서 쉼표로 구분하여 제시하고, 올바른 순서의 구절을 선택하도록 함\n- 구절 맞추기: 핵심 단어나 구를 빈칸으로 만들고, 의미상 적절한 4개 옵션 제공\n- 모든 선택지는 의미있고 혼동할 수 있는 내용으로 구성\n- 같은 구절을 여러 유형에서 사용하지 말고, 각 유형마다 다른 구절이나 관점으로 문제를 만들어라\n\n입력 예시:\n태초에 하나님이 천지를 창조하시니라|창세기 1:1\n모세의 아내는 십보라야|출애굽기 2:21\n하나님이 아브라함을 부르셨다|창세기 12:1\n\n출력 예시(JSON, 반드시 JSON만 반환):\n{\n  \"cardFlip\": [{\"question\": \"태초에 하나님이 천지를 창조하시니라의 출처는?\", \"options\": [\"창세기 1:1\", \"요한복음 3:16\", \"시편 23:1\", \"마태복음 5:9\"], \"answer\": \"창세기 1:1\"}],\n  \"wordOrder\": [{\"question\": \"다음 단어들을 올바른 순서로 배열하세요: 아브라함을, 부르셨다, 하나님이\", \"options\": [\"하나님이 아브라함을 부르셨다\", \"아브라함을 하나님이 부르셨다\", \"부르셨다 하나님이 아브라함을\", \"하나님이 부르셨다 아브라함을\"], \"answer\": \"하나님이 아브라함을 부르셨다\"}],\n  \"fillBlank\": [{\"question\": \"모세의 아내는 ___야\", \"options\": [\"십보라\", \"라헬\", \"사라\", \"리브가\"], \"answer\": \"십보라\"}]\n}`)
+  const [quizPrompt, setQuizPrompt] = useState(`아래 텍스트를 3가지 퀴즈 유형별로 각각 7문제씩, 쉬운 난이도의 4지 선다형 객관식으로 만들어줘.\n각 문제는 반드시 question(문제), options(4개 배열), answer(정답 문자열) 필드를 포함해야 해.\n\n1. 카드 뒤집기: 퀴즈 내용에서 문제를 상/중/하로 분류하여 각각 문제를 만들기\n2. 순서 기억: 퀴즈의 내용이 섞여있을 때 올바른 순서로 배열하는 문제 (단어들을 쉼표로 구분하여 제시)\n3. 구절 맞추기: 퀴즈 내용에서 중요한 단어나 구를 빈칸으로 바꿔서 빈칸 채우기 문제\n\n문제 생성 규칙:\n- 각 유형별로 서로 다른 퀴즈 내용을 사용하여 중복을 피하라\n- 카드 뒤집기: 퀴즈 내용과 정답 매칭에 집중\n- 순서 기억: 퀴즈 내용의 단어들을 섞어서 쉼표로 구분하여 제시하고, 올바른 순서의 내용을 선택하도록 함\n- 구절 맞추기: 핵심 단어나 구를 빈칸으로 만들고, 의미상 적절한 4개 옵션 제공\n- 모든 선택지는 의미있고 혼동할 수 있는 내용으로 구성\n- 같은 구절을 여러 유형에서 사용하지 말고, 각 유형마다 다른 퀴즈 내용이나 관점으로 문제를 만들어라\n\n입력 예시:\n태초에 하나님이 천지를 창조하시니라|창세기 1:1\n모세의 아내는 십보라야|출애굽기 2:21\n하나님이 아브라함을 부르셨다|창세기 12:1\n\n출력 예시(JSON, 반드시 JSON만 반환):\n{\n  \"cardFlip\": [{\"question\": \"태초에 하나님이 천지를 창조하시니라의 출처는?\", \"options\": [\"창세기 1:1\", \"요한복음 3:16\", \"시편 23:1\", \"마태복음 5:9\"], \"answer\": \"창세기 1:1\"}],\n  \"wordOrder\": [{\"question\": \"다음 단어들을 올바른 순서로 배열하세요: 아브라함을, 부르셨다, 하나님이\", \"options\": [\"하나님이 아브라함을 부르셨다\", \"아브라함을 하나님이 부르셨다\", \"부르셨다 하나님이 아브라함을\", \"하나님이 부르셨다 아브라함을\"], \"answer\": \"하나님이 아브라함을 부르셨다\"}],\n  \"fillBlank\": [{\"question\": \"모세의 아내는 ___야\", \"options\": [\"십보라\", \"라헬\", \"사라\", \"리브가\"], \"answer\": \"십보라\"}]\n}`)
   const [quizQuestions, setQuizQuestions] = useState([])
   const [quizAIQuestions, setQuizAIQuestions] = useState({ cardFlip: [], wordOrder: [], fillBlank: [] })
   const [aiLoading, setAiLoading] = useState(false)
@@ -109,16 +112,67 @@ function App() {
     }
   }
 
-  // 성경 인물 데이터
-  const biblicalCharacters = [
-    { id: 'adam', name: '아담', period: '약 4000년 전', description: '인류의 시조. 에덴동산에서 창조됨.', verse: '창세기 2:7-8', difficulty: '하' },
-    { id: 'noah', name: '노아', period: '약 3000년 전', description: '방주를 만들어 대홍수에서 구원받음.', verse: '창세기 6-9장', difficulty: '하' },
-    { id: 'abraham', name: '아브라함', period: '약 2000년 전', description: '믿음의 조상. 하나님의 부르심을 받음.', verse: '창세기 12장', difficulty: '중' },
-    { id: 'joseph', name: '요셉', period: '약 1800년 전', description: '꿈을 해석하고 이집트의 총리가 됨.', verse: '창세기 37-50장', difficulty: '중' },
-    { id: 'moses', name: '모세', period: '약 1500년 전', description: '이스라엘 백성을 이집트에서 인도함.', verse: '출애굽기', difficulty: '중' },
-    { id: 'david', name: '다윗', period: '약 1000년 전', description: '골리앗을 물리치고 이스라엘의 왕이 됨.', verse: '사무엘상 17장', difficulty: '중' },
-    { id: 'daniel', name: '다니엘', period: '약 500년 전', description: '바벨론에서 하나님께 충성함.', verse: '다니엘서', difficulty: '상' }
+  // 성경 인물 데이터 (다국어 지원)
+  const getBiblicalCharacters = () => [
+    {
+      id: 'adam',
+      name: t('home.charactersDetails.adam.name'),
+      period: t('home.charactersDetails.adam.period'),
+      description: t('home.charactersDetails.adam.description'),
+      verse: t('home.charactersDetails.adam.verse'),
+      difficulty: t('home.charactersDetails.adam.difficulty')
+    },
+    {
+      id: 'noah',
+      name: t('home.charactersDetails.noah.name'),
+      period: t('home.charactersDetails.noah.period'),
+      description: t('home.charactersDetails.noah.description'),
+      verse: t('home.charactersDetails.noah.verse'),
+      difficulty: t('home.charactersDetails.noah.difficulty')
+    },
+    {
+      id: 'abraham',
+      name: t('home.charactersDetails.abraham.name'),
+      period: t('home.charactersDetails.abraham.period'),
+      description: t('home.charactersDetails.abraham.description'),
+      verse: t('home.charactersDetails.abraham.verse'),
+      difficulty: t('home.charactersDetails.abraham.difficulty')
+    },
+    {
+      id: 'joseph',
+      name: t('home.charactersDetails.joseph.name'),
+      period: t('home.charactersDetails.joseph.period'),
+      description: t('home.charactersDetails.joseph.description'),
+      verse: t('home.charactersDetails.joseph.verse'),
+      difficulty: t('home.charactersDetails.joseph.difficulty')
+    },
+    {
+      id: 'moses',
+      name: t('home.charactersDetails.moses.name'),
+      period: t('home.charactersDetails.moses.period'),
+      description: t('home.charactersDetails.moses.description'),
+      verse: t('home.charactersDetails.moses.verse'),
+      difficulty: t('home.charactersDetails.moses.difficulty')
+    },
+    {
+      id: 'david',
+      name: t('home.charactersDetails.david.name'),
+      period: t('home.charactersDetails.david.period'),
+      description: t('home.charactersDetails.david.description'),
+      verse: t('home.charactersDetails.david.verse'),
+      difficulty: t('home.charactersDetails.david.difficulty')
+    },
+    {
+      id: 'daniel',
+      name: t('home.charactersDetails.daniel.name'),
+      period: t('home.charactersDetails.daniel.period'),
+      description: t('home.charactersDetails.daniel.description'),
+      verse: t('home.charactersDetails.daniel.verse'),
+      difficulty: t('home.charactersDetails.daniel.difficulty')
+    }
   ]
+
+  const biblicalCharacters = getBiblicalCharacters()
 
   const currentCharacter = biblicalCharacters.find(char => char.id === selectedCharacter)
 
@@ -304,12 +358,12 @@ function App() {
   }
 
   const menuItems = [
-    { id: 'home', label: '홈', icon: '🏠' },
-    { id: 'word', label: '말씀', icon: '📖' },
-    { id: 'doctrine', label: '교리', icon: '⛪' },
-    { id: 'sop', label: '예언의 신', icon: '🕊️' },
-    { id: 'meditation', label: '묵상', icon: '🧘' },
-    { id: 'resources', label: '자료실', icon: '📚' }
+    { id: 'home', label: t('nav.home'), icon: '🏠' },
+    { id: 'word', label: t('nav.word'), icon: '📖' },
+    { id: 'doctrine', label: t('nav.doctrine'), icon: '⛪' },
+    { id: 'sop', label: t('nav.sop'), icon: '🕊️' },
+    { id: 'meditation', label: t('nav.meditation'), icon: '🧘' },
+    { id: 'resources', label: t('nav.resources'), icon: '📚' }
   ]
 
   return (
@@ -347,9 +401,9 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <img src={logo} alt="BIBLE SCHOOL" className="w-8 h-8" />
+              <img src={logo} alt={t('title')} className="w-8 h-8" />
               <h1 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>
-                BIBLE SCHOOL
+                {t('title')}
               </h1>
             </div>
 
@@ -370,8 +424,14 @@ function App() {
               ))}
             </nav>
 
-            {/* 다크모드 토글 및 모바일 메뉴 */}
+            {/* 언어 선택, 다크모드 토글 및 모바일 메뉴 */}
             <div className="flex items-center space-x-2">
+              <LanguageSelector
+                currentLanguage={language}
+                onLanguageChange={changeLanguage}
+                isDarkMode={isDarkMode}
+              />
+
               <Button
                 variant="ghost"
                 size="sm"
@@ -425,8 +485,8 @@ function App() {
             {/* 성경 시간선 탐험 섹션 */}
             <section>
               <div className="text-center mb-8">
-                <h2 className={`text-4xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>성경 시간선 탐험</h2>
-                <p className={`text-lg ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>성경의 주요 인물들을 시간순으로 만나보세요</p>
+                <h2 className={`text-4xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-slate-800'}`}>{t('home.timeline.title')}</h2>
+                <p className={`text-lg ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>{t('home.timeline.subtitle')}</p>
               </div>
 
               {/* 인물 선택 */}
@@ -468,14 +528,14 @@ function App() {
                         <h3 className="text-3xl font-extrabold mb-2 text-red-600">{currentCharacter.name}</h3>
                         <div className="flex flex-wrap gap-2 mb-2">
                           <span className="inline-block bg-white/70 text-red-600 px-3 py-1 rounded-full text-xs font-semibold shadow">{currentCharacter.period}</span>
-                          <span className="inline-block bg-white/70 text-pink-600 px-3 py-1 rounded-full text-xs font-semibold shadow">난이도: {currentCharacter.difficulty}</span>
+                          <span className="inline-block bg-white/70 text-pink-600 px-3 py-1 rounded-full text-xs font-semibold shadow">{t('common.difficulty')}: {currentCharacter.difficulty}</span>
                           <span className="inline-block bg-white/70 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold shadow">{currentCharacter.verse}</span>
                         </div>
                         <p className="text-base text-slate-700 dark:text-slate-200 mb-2">{currentCharacter.description}</p>
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center text-slate-400">인물을 선택하세요</div>
+                    <div className="text-center text-slate-400">{t('common.selectCharacter')}</div>
                   )}
                 </div>
               </div>
@@ -486,7 +546,7 @@ function App() {
               <MainVideoGallery
                 videos={uploadedVideos}
                 onVideoClick={handleVideoClick}
-                title="최신 영상"
+                title={t('home.videos.title')}
               />
             </section>
 
@@ -495,7 +555,7 @@ function App() {
               <MainSlider
                 slides={currentSlides.filter(slide => slide.type === 'file' || slide.type === 'google')}
                 onSlideClick={handleSlideClick}
-                title="최신 슬라이드"
+                title={t('home.slides.title')}
               />
             </section>
 
@@ -533,8 +593,8 @@ function App() {
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>1</span>
                         <div>
-                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>나 외에는 다른 신들을 네게 있게 말지 말라</h4>
-                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>하나님만을 섬기고 다른 신을 섬기지 말라</p>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>{t('home.commandments.commandment1.title')}</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>{t('home.commandments.commandment1.description')}</p>
                         </div>
                       </div>
                     </div>
@@ -543,8 +603,8 @@ function App() {
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>2</span>
                         <div>
-                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>너를 위하여 새긴 우상을 만들지 말라</h4>
-                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>우상을 만들거나 섬기지 말라</p>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>{t('home.commandments.commandment2.title')}</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>{t('home.commandments.commandment2.description')}</p>
                         </div>
                       </div>
                     </div>
@@ -553,8 +613,8 @@ function App() {
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>3</span>
                         <div>
-                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>너의 하나님 여호와의 이름을 망령되이 일컫지 말라</h4>
-                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>하나님의 이름을 함부로 사용하지 말라</p>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>{t('home.commandments.commandment3.title')}</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>{t('home.commandments.commandment3.description')}</p>
                         </div>
                       </div>
                     </div>
@@ -563,8 +623,8 @@ function App() {
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>4</span>
                         <div>
-                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>안식일을 기억하여 거룩하게 지키라</h4>
-                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>일곱째 날을 거룩하게 지켜라</p>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>{t('home.commandments.commandment4.title')}</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>{t('home.commandments.commandment4.description')}</p>
                         </div>
                       </div>
                     </div>
@@ -577,8 +637,8 @@ function App() {
                     <div className={`w-16 h-16 rounded-full ${isDarkMode ? 'bg-amber-700' : 'bg-amber-500'} flex items-center justify-center mx-auto mb-4`}>
                       <span className="text-2xl">📜</span>
                     </div>
-                    <h3 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>두 번째 돌비</h3>
-                    <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>이웃과의 관계 (5-10계명)</p>
+                    <h3 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>{t('home.commandments.secondTablet')}</h3>
+                    <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>{t('home.commandments.secondTabletSubtitle')}</p>
                   </div>
 
                   <div className="space-y-4">
@@ -586,8 +646,8 @@ function App() {
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>5</span>
                         <div>
-                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>네 부모를 공경하라</h4>
-                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>부모를 존경하고 순종하라</p>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>{t('home.commandments.commandment5.title')}</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>{t('home.commandments.commandment5.description')}</p>
                         </div>
                       </div>
                     </div>
@@ -596,8 +656,8 @@ function App() {
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>6</span>
                         <div>
-                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>살인하지 말라</h4>
-                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>사람의 생명을 해치지 말라</p>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>{t('home.commandments.commandment6.title')}</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>{t('home.commandments.commandment6.description')}</p>
                         </div>
                       </div>
                     </div>
@@ -606,8 +666,8 @@ function App() {
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>7</span>
                         <div>
-                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>간음하지 말라</h4>
-                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>순결한 삶을 살라</p>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>{t('home.commandments.commandment7.title')}</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>{t('home.commandments.commandment7.description')}</p>
                         </div>
                       </div>
                     </div>
@@ -616,8 +676,8 @@ function App() {
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>8</span>
                         <div>
-                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>도적질하지 말라</h4>
-                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>남의 것을 훔치지 말라</p>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>{t('home.commandments.commandment8.title')}</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>{t('home.commandments.commandment8.description')}</p>
                         </div>
                       </div>
                     </div>
@@ -626,8 +686,8 @@ function App() {
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>9</span>
                         <div>
-                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>네 이웃에 대하여 거짓 증거하지 말라</h4>
-                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>거짓말하지 말라</p>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>{t('home.commandments.commandment9.title')}</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>{t('home.commandments.commandment9.description')}</p>
                         </div>
                       </div>
                     </div>
@@ -636,8 +696,8 @@ function App() {
                       <div className="flex items-start gap-3">
                         <span className={`text-lg font-bold ${isDarkMode ? 'text-amber-300' : 'text-amber-700'}`}>10</span>
                         <div>
-                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>네 이웃의 것을 탐내지 말라</h4>
-                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>남의 것을 부러워하지 말라</p>
+                          <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-amber-200' : 'text-amber-800'}`}>{t('home.commandments.commandment10.title')}</h4>
+                          <p className={`text-sm ${isDarkMode ? 'text-amber-300' : 'text-amber-600'}`}>{t('home.commandments.commandment10.description')}</p>
                         </div>
                       </div>
                     </div>
@@ -647,7 +707,7 @@ function App() {
 
               <div className="text-center mt-8">
                 <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                  출애굽기 20:1-17 | 시내산에서 모세에게 주신 하나님의 말씀
+                  {t('home.commandments.reference')}
                 </p>
               </div>
             </section>
@@ -701,38 +761,36 @@ function App() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <img src={logo} alt="BIBLE SCHOOL" className="w-8 h-8" />
-                <h3 className="text-xl font-bold">BIBLE SCHOOL</h3>
+                <img src={logo} alt={t('title')} className="w-8 h-8" />
+                <h3 className="text-xl font-bold">{t('title')}</h3>
               </div>
               <p className="text-slate-300">
-                초중학생을 위한 성경 교육 플랫폼으로,
-                하나님의 말씀을 재미있고 쉽게 배울 수
-                있도록 도와드립니다.
+                {t('footer.description')}
               </p>
             </div>
             <div>
-              <h4 className="text-lg font-semibold mb-4">메뉴</h4>
+              <h4 className="text-lg font-semibold mb-4">{t('footer.menu')}</h4>
               <ul className="space-y-2">
-                <li><a href="#" className="text-blue-400 hover:text-blue-300">📖 말씀</a></li>
-                <li><a href="#" className="text-blue-400 hover:text-blue-300">⛪ 교리</a></li>
-                <li><a href="#" className="text-blue-400 hover:text-blue-300">🕊️ 예언의 신</a></li>
-                <li><a href="#" className="text-blue-400 hover:text-blue-300">📚 자료실</a></li>
+                <li><a href="#" className="text-blue-400 hover:text-blue-300">📖 {t('nav.word')}</a></li>
+                <li><a href="#" className="text-blue-400 hover:text-blue-300">⛪ {t('nav.doctrine')}</a></li>
+                <li><a href="#" className="text-blue-400 hover:text-blue-300">🕊️ {t('nav.sop')}</a></li>
+                <li><a href="#" className="text-blue-400 hover:text-blue-300">📚 {t('nav.resources')}</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-lg font-semibold mb-4">연락처</h4>
+              <h4 className="text-lg font-semibold mb-4">{t('footer.contact')}</h4>
               <div className="space-y-2">
-                <p>이메일: info@biblechildren.com</p>
-                <p>전화: 02-1234-5678</p>
+                <p>{t('footer.email')}</p>
+                <p>{t('footer.phone')}</p>
                 <div className="flex items-center space-x-2 mt-4">
                   <Cross className="w-4 h-4" />
-                  <span>하나님의 사랑으로</span>
+                  <span>{t('footer.withLove')}</span>
                 </div>
               </div>
             </div>
           </div>
           <div className="border-t border-slate-700 mt-8 pt-8 text-center">
-            <p className="text-slate-400">© 2025 BIBLE SCHOOL. 모든 권리 보유.</p>
+            <p className="text-slate-400">{t('footer.copyright')}</p>
           </div>
         </div>
       </footer>

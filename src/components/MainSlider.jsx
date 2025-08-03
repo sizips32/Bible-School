@@ -3,9 +3,13 @@ import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent } from '@/components/ui/card.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
 import { ChevronLeft, ChevronRight, Book, ExternalLink } from 'lucide-react'
+import { useTranslation } from '@/lib/i18n.js'
 
-const MainSlider = ({ slides, onSlideClick, title = "최신 슬라이드" }) => {
+const MainSlider = ({ slides, onSlideClick, title }) => {
+  const { t } = useTranslation()
   const [currentIndex, setCurrentIndex] = useState(0)
+  
+  const slideTitle = title || t('home.slides.title')
 
   useEffect(() => {
     if (slides.length > 1) {
@@ -32,8 +36,8 @@ const MainSlider = ({ slides, onSlideClick, title = "최신 슬라이드" }) => 
       <Card className="w-full">
         <CardContent className="p-8 text-center">
           <Book className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-slate-600 mb-2">업로드된 슬라이드가 없습니다</h3>
-          <p className="text-slate-500">자료실에서 PPT 파일을 업로드하거나 구글 슬라이드를 연결해주세요</p>
+          <h3 className="text-lg font-medium text-slate-600 mb-2">{t('slider.noSlides')}</h3>
+          <p className="text-slate-500">{t('slider.noSlidesDescription')}</p>
         </CardContent>
       </Card>
     )
@@ -44,8 +48,8 @@ const MainSlider = ({ slides, onSlideClick, title = "최신 슬라이드" }) => 
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-slate-800">{title}</h2>
-        <Badge variant="secondary">{slides.length}개 슬라이드</Badge>
+        <h2 className="text-2xl font-bold text-slate-800">{slideTitle}</h2>
+        <Badge variant="secondary">{slides.length}{t('slider.slidesCount')}</Badge>
       </div>
 
       <Card className="relative overflow-hidden">
@@ -75,13 +79,13 @@ const MainSlider = ({ slides, onSlideClick, title = "최신 슬라이드" }) => 
                     {currentSlide.title}
                   </h3>
                   <p className="text-slate-600 mb-4 break-words line-clamp-3 w-full max-w-full">
-                    {currentSlide.content || currentSlide.description || '성경 교육 슬라이드'}
+                    {currentSlide.content || currentSlide.description || t('slider.bibleEducationSlide')}
                   </p>
                   <div className="flex flex-wrap items-center justify-center gap-2">
                     <Badge variant="outline">
-                      {currentSlide.type === 'google' ? '구글 슬라이드' : 'PPT'}
+                      {currentSlide.type === 'google' ? t('slider.googleSlide') : t('slider.ppt')}
                     </Badge>
-                    <Badge variant="secondary">슬라이드 {currentIndex + 1}</Badge>
+                    <Badge variant="secondary">{t('slider.slideNumber')} {currentIndex + 1}</Badge>
                   </div>
                 </div>
               )}
@@ -128,7 +132,7 @@ const MainSlider = ({ slides, onSlideClick, title = "최신 슬라이드" }) => 
           <div className="p-4 bg-white border-t">
             <div className="flex items-center justify-between">
               <div className="text-sm text-slate-600">
-                슬라이드 {currentIndex + 1} / {slides.length}
+                {t('slider.slideNumber')} {currentIndex + 1}{t('slider.of')}{slides.length}
               </div>
             </div>
           </div>
