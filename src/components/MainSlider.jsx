@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent } from '@/components/ui/card.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
-import { ChevronLeft, ChevronRight, Book, ExternalLink } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Book, ExternalLink, Trash2 } from 'lucide-react'
 import { useTranslation } from '@/lib/i18n.js'
 
-const MainSlider = ({ slides, onSlideClick, title }) => {
+const MainSlider = ({ slides, onSlideClick, onSlideDelete, title }) => {
   const { t } = useTranslation()
   const [currentIndex, setCurrentIndex] = useState(0)
   
@@ -70,22 +70,36 @@ const MainSlider = ({ slides, onSlideClick, title }) => {
                   />
                 </div>
               ) : (
-                // 기본 슬라이드 표시 (텍스트가 겹치지 않도록 레이아웃 보강)
-                <div className="flex flex-col items-center justify-center h-full w-full p-4 md:p-8 min-h-0 max-h-full overflow-y-auto">
-                  <div className="w-20 h-20 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-4 shrink-0">
-                    <Book className="w-10 h-10 text-white" />
+                // 기본 슬라이드 표시 (개선된 미리보기)
+                <div
+                  className="flex flex-col items-center justify-center h-full w-full p-4 md:p-8 min-h-0 max-h-full overflow-y-auto cursor-pointer hover:bg-gradient-to-br hover:from-blue-60 hover:to-slate-200 transition-all duration-200"
+                  onClick={() => onSlideClick && onSlideClick(currentSlide)}
+                >
+                  <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-6 shrink-0 shadow-lg hover:scale-105 transition-transform duration-200">
+                    <Book className="w-12 h-12 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold text-slate-800 mb-2 break-words line-clamp-2 w-full max-w-full">
+                  <h3 className="text-2xl font-bold text-slate-800 mb-3 break-words line-clamp-2 w-full max-w-full text-center">
                     {currentSlide.title}
                   </h3>
-                  <p className="text-slate-600 mb-4 break-words line-clamp-3 w-full max-w-full">
+                  <p className="text-slate-600 mb-6 break-words line-clamp-3 w-full max-w-full text-center leading-relaxed">
                     {currentSlide.content || currentSlide.description || t('slider.bibleEducationSlide')}
                   </p>
-                  <div className="flex flex-wrap items-center justify-center gap-2">
-                    <Badge variant="outline">
-                      {currentSlide.type === 'google' ? t('slider.googleSlide') : t('slider.ppt')}
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    <Badge variant="outline" className="text-sm px-3 py-1">
+                      {currentSlide.type === 'google' ? t('slider.googleSlide') : 'PowerPoint'}
                     </Badge>
-                    <Badge variant="secondary">{t('slider.slideNumber')} {currentIndex + 1}</Badge>
+                    <Badge variant="secondary" className="text-sm px-3 py-1">
+                      {t('slider.slideNumber')} {currentIndex + 1}
+                    </Badge>
+                    {currentSlide.type === 'file' && (
+                      <Badge variant="outline" className="text-sm px-3 py-1 bg-green-50 text-green-700 border-green-200">
+                        📎 업로드됨
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="mt-4 text-xs text-slate-500 flex items-center gap-1">
+                    <ExternalLink className="w-3 h-3" />
+                    클릭하여 전체 화면으로 보기
                   </div>
                 </div>
               )}
@@ -126,6 +140,23 @@ const MainSlider = ({ slides, onSlideClick, title }) => {
                 ))}
               </div>
             )}
+
+            {/* 삭제 버튼 (우상단) */}
+            {onSlideDelete && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute top-4 right-4 bg-red-500/80 hover:bg-red-600 text-white z-20 shadow-lg"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (window.confirm('이 슬라이드를 삭제하시겠습니까?')) {
+                    onSlideDelete(currentSlide.id);
+                  }
+                }}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
           </div>
 
           {/* 액션 버튼 */}
@@ -133,6 +164,33 @@ const MainSlider = ({ slides, onSlideClick, title }) => {
             <div className="flex items-center justify-between">
               <div className="text-sm text-slate-600">
                 {t('slider.slideNumber')} {currentIndex + 1}{t('slider.of')}{slides.length}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => onSlideClick && onSlideClick(currentSlide)}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  {currentSlide.type === 'google' ? t('slider.openGoogleSlide') : t('slider.viewSlide')}
+                </Button>
+                {onSlideDelete && (
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (window.confirm('이 슬라이드를 삭제하시겠습니까?')) {
+                        onSlideDelete(currentSlide.id);
+                      }
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2 text-red-600 border-red-200 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    삭제
+                  </Button>
+                )}
               </div>
             </div>
           </div>

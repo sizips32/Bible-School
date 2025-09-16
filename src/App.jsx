@@ -15,6 +15,7 @@ import BibleExplorer from './components/BibleExplorer.jsx'
 import SDADoctrines from './components/SDADoctrines.jsx'
 import SpiritOfProphecy from './components/SpiritOfProphecy.jsx';
 import MeditationPage from './components/MeditationPage.jsx';
+import SanctuaryPage from './components/SanctuaryPage.jsx';
 import LanguageSelector from './components/LanguageSelector.jsx';
 import './App.css'
 import { saveToLocalStorage, loadFromLocalStorage } from './lib/localStorage';
@@ -177,15 +178,23 @@ function App() {
   const currentCharacter = biblicalCharacters.find(char => char.id === selectedCharacter)
 
   const handleFileUpload = (files) => {
+    console.log('파일 업로드 시작:', files)
     setUploadedFiles(prev => [...prev, ...files])
     const newSlides = files.map((file, index) => ({
       id: `file_${Date.now()}_${index}`,
       title: file.name.replace(/\.[^/.]+$/, ""),
       content: `${file.name}에서 변환된 슬라이드입니다.`,
       type: 'file',
-      description: 'PPT 파일에서 변환됨'
+      description: 'PPT 파일에서 변환됨',
+      file: file, // 파일 객체 추가
+      url: file.type.startsWith('image/') ? URL.createObjectURL(file) : null // 이미지인 경우 URL 생성
     }))
-    setCurrentSlides(prev => [...prev, ...newSlides])
+    console.log('생성된 슬라이드:', newSlides)
+    setCurrentSlides(prev => {
+      const updated = [...prev, ...newSlides]
+      console.log('업데이트된 전체 슬라이드:', updated)
+      return updated
+    })
   }
 
   const handleVideoUpload = (files) => {
@@ -317,6 +326,19 @@ function App() {
     saveToLocalStorage('uploadedVideos', updated);
   };
 
+  // 슬라이드 삭제 핸들러
+  const handleDeleteSlide = (slideId) => {
+    const updated = currentSlides.filter(slide => slide.id !== slideId);
+    setCurrentSlides(updated);
+    saveToLocalStorage('currentSlides', updated);
+
+    // 현재 표시중인 슬라이드가 삭제된 경우 모달 닫기
+    if (selectedSlide && selectedSlide.id === slideId) {
+      setShowSlideViewer(false);
+      setSelectedSlide(null);
+    }
+  };
+
   // AI로 퀴즈 생성 핸들러
   const handleAIGenerateQuiz = async () => {
     setAiLoading(true)
@@ -362,6 +384,7 @@ function App() {
     { id: 'word', label: t('nav.word'), icon: '📖' },
     { id: 'doctrine', label: t('nav.doctrine'), icon: '⛪' },
     { id: 'sop', label: t('nav.sop'), icon: '🕊️' },
+    { id: 'sanctuary', label: '성소', icon: '🏛️' },
     { id: 'meditation', label: t('nav.meditation'), icon: '🧘' },
     { id: 'resources', label: t('nav.resources'), icon: '📚' }
   ]
@@ -555,8 +578,22 @@ function App() {
               <MainSlider
                 slides={currentSlides.filter(slide => slide.type === 'file' || slide.type === 'google')}
                 onSlideClick={handleSlideClick}
+                onSlideDelete={handleDeleteSlide}
                 title={t('home.slides.title')}
               />
+              {/* 디버깅용 정보 */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="mt-4 p-4 bg-gray-100 rounded-lg text-sm">
+                  <p><strong>총 슬라이드 수:</strong> {currentSlides.length}</p>
+                  <p><strong>표시할 슬라이드 수:</strong> {currentSlides.filter(slide => slide.type === 'file' || slide.type === 'google').length}</p>
+                  <details className="mt-2">
+                    <summary className="cursor-pointer font-semibold">슬라이드 데이터</summary>
+                    <pre className="mt-2 text-xs overflow-auto max-h-32">
+                      {JSON.stringify(currentSlides, null, 2)}
+                    </pre>
+                  </details>
+                </div>
+              )}
             </section>
 
             {/* 퀴즈 게임 섹션 */}
@@ -752,6 +789,10 @@ function App() {
 
         {currentPage === 'meditation' && (
           <MeditationPage isDarkMode={isDarkMode} />
+        )}
+
+        {currentPage === 'sanctuary' && (
+          <SanctuaryPage isDarkMode={isDarkMode} />
         )}
       </main>
 
