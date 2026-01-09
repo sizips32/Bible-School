@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.jsx'
 import { Input } from '@/components/ui/input.jsx'
@@ -44,6 +44,10 @@ function App() {
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState('')
 
+  // Ref to track if initial data load from localStorage is complete
+  // This prevents the save effects from overwriting data with empty arrays on mount
+  const isInitializedRef = useRef(false)
+
   // YouTube API 키 (실제 사용시 환경변수로 관리)
   const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY || 'YOUR_YOUTUBE_API_KEY' // 실제 API 키로 교체 필요
 
@@ -51,19 +55,22 @@ function App() {
   useEffect(() => {
     setUploadedVideos(loadFromLocalStorage('uploadedVideos'));
     setCurrentSlides(loadFromLocalStorage('currentSlides'));
+    // Mark initialization as complete after loading data
+    isInitializedRef.current = true;
   }, []);
 
   // 업로드된 영상이 변경될 때마다 localStorage에 저장
   useEffect(() => {
+    // Only save after initial load is complete to prevent data wipe
+    if (!isInitializedRef.current) return;
     saveToLocalStorage('uploadedVideos', uploadedVideos);
   }, [uploadedVideos]);
 
   // 슬라이드가 변경될 때마다 localStorage에 저장
   useEffect(() => {
+    // Only save after initial load is complete to prevent data wipe
+    if (!isInitializedRef.current) return;
     saveToLocalStorage('currentSlides', currentSlides);
-    // 개발용: 슬라이드 개수 확인
-    console.log('현재 슬라이드 개수:', currentSlides.length)
-    console.log('슬라이드 데이터:', currentSlides)
   }, [currentSlides])
 
   // YouTube URL에서 영상 ID 추출하는 함수
@@ -178,7 +185,6 @@ function App() {
   const currentCharacter = biblicalCharacters.find(char => char.id === selectedCharacter)
 
   const handleFileUpload = (files) => {
-    console.log('파일 업로드 시작:', files)
     setUploadedFiles(prev => [...prev, ...files])
     const newSlides = files.map((file, index) => ({
       id: `file_${Date.now()}_${index}`,
@@ -186,15 +192,10 @@ function App() {
       content: `${file.name}에서 변환된 슬라이드입니다.`,
       type: 'file',
       description: 'PPT 파일에서 변환됨',
-      file: file, // 파일 객체 추가
-      url: file.type.startsWith('image/') ? URL.createObjectURL(file) : null // 이미지인 경우 URL 생성
+      file: file,
+      url: file.type.startsWith('image/') ? URL.createObjectURL(file) : null
     }))
-    console.log('생성된 슬라이드:', newSlides)
-    setCurrentSlides(prev => {
-      const updated = [...prev, ...newSlides]
-      console.log('업데이트된 전체 슬라이드:', updated)
-      return updated
-    })
+    setCurrentSlides(prev => [...prev, ...newSlides])
   }
 
   const handleVideoUpload = (files) => {
