@@ -406,9 +406,21 @@ function App() {
         body: JSON.stringify(body)
       })
       const data = await response.json()
+      // API 오류 응답 체크
+      if (!response.ok) {
+        const errorMsg = data.error?.message || `HTTP ${response.status}`
+        throw new Error(`API 오류: ${errorMsg}`)
+      }
       // Gemini 응답에서 JSON 파싱
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-      if (!text) throw new Error('AI 응답이 비어 있습니다.')
+      if (!text) {
+        // 더 자세한 오류 정보 표시
+        const blockReason = data.candidates?.[0]?.finishReason
+        const promptFeedback = data.promptFeedback?.blockReason
+        if (blockReason) throw new Error(`AI 응답 차단: ${blockReason}`)
+        if (promptFeedback) throw new Error(`프롬프트 차단: ${promptFeedback}`)
+        throw new Error('AI 응답이 비어 있습니다. API 키를 확인하세요.')
+      }
       // 코드블록 제거 및 JSON 블록만 추출
       let jsonText = text.trim();
       if (jsonText.startsWith('```json')) {
