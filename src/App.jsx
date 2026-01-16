@@ -397,7 +397,7 @@ function App() {
       if (!apiKey) {
         throw new Error('Gemini API 키가 설정되지 않았습니다. 환경변수 VITE_GEMINI_API_KEY를 확인하세요.')
       }
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`
       const prompt = `${quizPrompt}\n\n아래 입력을 변환:\n${quizText}\n\n각 유형별로 반드시 7문제씩, 각 문제는 쉬운 난이도의 4지 선다형 객관식으로 만들어 JSON만 반환해줘.\n중요: 각 유형별로 서로 다른 구절이나 내용을 사용하여 중복을 피하라.`
       const body = { contents: [{ parts: [{ text: prompt }] }] }
       const response = await fetch(url, {
