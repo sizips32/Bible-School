@@ -21,6 +21,7 @@ export const translations = {
       word: '말씀',
       doctrine: '교리',
       sop: '예언의 신',
+      sanctuary: '성소',
       meditation: '묵상',
       resources: '자료실'
     },
@@ -175,6 +176,22 @@ export const translations = {
       slideNumber: '슬라이드',
       of: '/',
       bibleEducationSlide: '성경 교육 슬라이드'
+    },
+
+    // 자료실
+    resources: {
+      title: '자료실',
+      description: '성경 교육 자료를 업로드하고 관리하세요',
+      uploadSlides: '슬라이드 업로드',
+      uploadVideos: '영상 업로드',
+      googleSlideUrl: '구글 슬라이드 URL',
+      youtubeUrl: '유튜브 URL',
+      add: '추가',
+      delete: '삭제',
+      noSlides: '등록된 슬라이드가 없습니다',
+      noVideos: '등록된 영상이 없습니다',
+      slidesList: '슬라이드 목록',
+      videosList: '영상 목록'
     }
   },
   
@@ -186,6 +203,7 @@ export const translations = {
       word: 'Word',
       doctrine: 'Doctrine',
       sop: 'Spirit of Prophecy',
+      sanctuary: 'Sanctuary',
       meditation: 'Meditation',
       resources: 'Resources'
     },
@@ -340,6 +358,22 @@ export const translations = {
       slideNumber: 'Slide',
       of: ' / ',
       bibleEducationSlide: 'Bible Education Slide'
+    },
+
+    // Resources
+    resources: {
+      title: 'Resources',
+      description: 'Upload and manage Bible education materials',
+      uploadSlides: 'Upload Slides',
+      uploadVideos: 'Upload Videos',
+      googleSlideUrl: 'Google Slides URL',
+      youtubeUrl: 'YouTube URL',
+      add: 'Add',
+      delete: 'Delete',
+      noSlides: 'No slides registered',
+      noVideos: 'No videos registered',
+      slidesList: 'Slides List',
+      videosList: 'Videos List'
     }
   }
 }

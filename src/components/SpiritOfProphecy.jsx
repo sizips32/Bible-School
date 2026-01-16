@@ -44,7 +44,7 @@ const SpiritOfProphecy = ({ isDarkMode }) => {
         {spiritOfProphecy.series.map((series, index) => (
           <AccordionItem
             value={`item-${index}`}
-            key={index}
+            key={series.title}
             className={`rounded-xl shadow-md border-0 ${isDarkMode ? 'bg-slate-800' : 'bg-slate-50'}`}
           >
             <AccordionTrigger className={`px-6 py-4 text-lg md:text-xl font-semibold cursor-pointer ${isDarkMode ? 'hover:text-blue-400' : 'hover:text-blue-600'}`}>

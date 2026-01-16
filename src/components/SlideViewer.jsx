@@ -60,9 +60,9 @@ const SlideViewer = ({ slides, title, onClose, isFullscreen }) => {
                 {currentSlide + 1} / {slides.length}
               </span>
               <div className="flex space-x-1">
-                {slides.map((_, index) => (
+                {slides.map((slide, index) => (
                   <button
-                    key={index}
+                    key={slide.id || `slide-${index}`}
                     onClick={() => setCurrentSlide(index)}
                     className={`w-2 h-2 rounded-full ${index === currentSlide ? 'bg-blue-500' : 'bg-slate-300'
                       }`}

@@ -3,10 +3,26 @@ import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
 import { Upload, File, X, Eye } from 'lucide-react'
+import { generateId } from '../lib/localStorage'
+
+// MIME 타입 매핑
+const MIME_TYPE_MAP = {
+  '.ppt': ['application/vnd.ms-powerpoint'],
+  '.pptx': ['application/vnd.openxmlformats-officedocument.presentationml.presentation'],
+  '.mp4': ['video/mp4'],
+  '.mov': ['video/quicktime'],
+  '.avi': ['video/x-msvideo', 'video/avi'],
+  '.pdf': ['application/pdf'],
+  '.jpg': ['image/jpeg'],
+  '.jpeg': ['image/jpeg'],
+  '.png': ['image/png'],
+  '.gif': ['image/gif'],
+}
 
 const FileUpload = ({ onFileUpload, acceptedTypes = '.ppt,.pptx', maxSize = 50, title, description }) => {
   const [dragActive, setDragActive] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState([])
+  const [errorMessage, setErrorMessage] = useState('')
   const fileInputRef = useRef(null)
 
   const handleDrag = (e) => {
@@ -37,13 +53,35 @@ const FileUpload = ({ onFileUpload, acceptedTypes = '.ppt,.pptx', maxSize = 50, 
   }
 
   const handleFiles = (files) => {
+    setErrorMessage('')
     const fileArray = Array.from(files)
-    const validFiles = fileArray.filter(file => {
+    const validFiles = []
+    const rejectedFiles = []
+
+    fileArray.forEach(file => {
       const fileExtension = '.' + file.name.split('.').pop().toLowerCase()
-      const isValidType = acceptedTypes.split(',').some(type => type.trim() === fileExtension)
+      const isValidExtension = acceptedTypes.split(',').some(type => type.trim() === fileExtension)
       const isValidSize = file.size <= maxSize * 1024 * 1024
-      return isValidType && isValidSize
+
+      // MIME 타입 검증
+      const allowedMimeTypes = MIME_TYPE_MAP[fileExtension] || []
+      const isValidMimeType = allowedMimeTypes.length === 0 || allowedMimeTypes.includes(file.type)
+
+      if (isValidExtension && isValidSize && isValidMimeType) {
+        validFiles.push(file)
+      } else {
+        rejectedFiles.push({
+          name: file.name,
+          reason: !isValidExtension ? '지원하지 않는 파일 형식' :
+                  !isValidSize ? `파일 크기 초과 (최대 ${maxSize}MB)` :
+                  '파일 형식이 올바르지 않습니다'
+        })
+      }
     })
+
+    if (rejectedFiles.length > 0) {
+      setErrorMessage(`업로드 실패: ${rejectedFiles.map(f => `${f.name} (${f.reason})`).join(', ')}`)
+    }
 
     if (validFiles.length > 0) {
       const newFiles = validFiles.map(file => ({
@@ -51,9 +89,9 @@ const FileUpload = ({ onFileUpload, acceptedTypes = '.ppt,.pptx', maxSize = 50, 
         name: file.name,
         size: file.size,
         type: file.type,
-        id: Date.now() + Math.random()
+        id: generateId('upload')
       }))
-      
+
       setUploadedFiles(prev => [...prev, ...newFiles])
       if (onFileUpload) {
         onFileUpload(newFiles)
@@ -107,15 +145,21 @@ const FileUpload = ({ onFileUpload, acceptedTypes = '.ppt,.pptx', maxSize = 50, 
             onChange={handleChange}
             className="hidden"
           />
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => fileInputRef.current?.click()}
             className="cursor-pointer"
           >
             파일 선택
           </Button>
         </div>
-        
+
+        {errorMessage && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-600">{errorMessage}</p>
+          </div>
+        )}
+
         {uploadedFiles.length > 0 && (
           <div className="mt-6">
             <h4 className="font-medium mb-3">업로드된 파일:</h4>

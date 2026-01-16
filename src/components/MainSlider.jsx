@@ -130,9 +130,9 @@ const MainSlider = ({ slides, onSlideClick, onSlideDelete, title }) => {
             {/* 인디케이터 */}
             {slides.length > 1 && (
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
-                {slides.map((_, index) => (
+                {slides.map((slide, index) => (
                   <button
-                    key={index}
+                    key={slide.id || `indicator-${index}`}
                     className={`w-3 h-3 rounded-full transition-colors shadow-lg ${index === currentIndex ? 'bg-blue-500' : 'bg-white/70'
                       }`}
                     onClick={() => setCurrentIndex(index)}

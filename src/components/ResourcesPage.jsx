@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge.jsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.jsx'
 import { Book, Upload, Play, ExternalLink, Youtube, FileText, Video } from 'lucide-react'
 import FileUpload from './FileUpload.jsx'
+import { useTranslation } from '../lib/i18n.js'
 
 const ResourcesPage = ({
   onFileUpload,
@@ -29,11 +30,13 @@ const ResourcesPage = ({
   onQuizPromptChange,
   aiQuestions
 }) => {
+  const { t } = useTranslation()
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-slate-800 mb-4">자료실</h1>
-        <p className="text-lg text-slate-600">성경 교육 자료를 업로드하고 관리하세요</p>
+        <h1 className="text-4xl font-bold text-slate-800 mb-4">{t('resources.title')}</h1>
+        <p className="text-lg text-slate-600">{t('resources.description')}</p>
       </div>
 
       <Tabs defaultValue="slides" className="w-full">

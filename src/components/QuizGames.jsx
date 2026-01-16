@@ -154,7 +154,7 @@ const QuizGames = ({ uploadedSlides, uploadedVideos, youtubeVideos, quizQuestion
             <div className="text-2xl font-bold mb-6">{q.question}</div>
             {Array.isArray(q.options) && q.options.length === 4 ? (
               <div className="flex flex-col items-center gap-2 mb-4">
-                {q.options.map((opt, idx) => {
+                {q.options.map((opt) => {
                   // 정답/오답 표시 색상 결정
                   let optionClass = 'border-gray-300'
                   if (showResult) {
@@ -168,7 +168,7 @@ const QuizGames = ({ uploadedSlides, uploadedVideos, youtubeVideos, quizQuestion
                   }
                   return (
                     <label
-                      key={idx}
+                      key={opt}
                       className={`w-full max-w-md px-4 py-2 rounded border flex items-center gap-2 ${optionClass}`}
                       onClick={() => !showResult && handleSelectOption(opt)}
                       style={{ cursor: showResult ? 'default' : 'pointer' }}

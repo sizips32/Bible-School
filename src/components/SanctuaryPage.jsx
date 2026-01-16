@@ -262,7 +262,7 @@ const SanctuaryPage = ({ isDarkMode }) => {
                     </p>
                   </div>
                   <Button
-                    onClick={() => window.open('https://ai.studio/apps/drive/17qIed5fOY_yvdAA1qNWr6IffT2RvoSWc', '_blank')}
+                    onClick={() => window.open('https://aistudio.google.com/u/1/apps/drive/17qIed5fOY_yvdAA1qNWr6IffT2RvoSWc?showPreview=true&showAssistant=true', '_blank')}
                     className="inline-flex items-center gap-2"
                   >
                     <ExternalLink className="w-4 h-4" />

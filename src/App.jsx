@@ -18,7 +18,7 @@ import MeditationPage from './components/MeditationPage.jsx';
 import SanctuaryPage from './components/SanctuaryPage.jsx';
 import LanguageSelector from './components/LanguageSelector.jsx';
 import './App.css'
-import { saveToLocalStorage, loadFromLocalStorage } from './lib/localStorage';
+import { saveToLocalStorage, loadFromLocalStorage, generateId } from './lib/localStorage';
 import { useTranslation } from './lib/i18n.js';
 
 function App() {
@@ -44,8 +44,8 @@ function App() {
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState('')
 
-  // YouTube API 키 (실제 사용시 환경변수로 관리)
-  const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY || 'YOUR_YOUTUBE_API_KEY' // 실제 API 키로 교체 필요
+  // YouTube API 키 (환경변수로 관리)
+  const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
 
   // 앱 시작 시 localStorage에서 자료 불러오기
   useEffect(() => {
@@ -61,9 +61,6 @@ function App() {
   // 슬라이드가 변경될 때마다 localStorage에 저장
   useEffect(() => {
     saveToLocalStorage('currentSlides', currentSlides);
-    // 개발용: 슬라이드 개수 확인
-    console.log('현재 슬라이드 개수:', currentSlides.length)
-    console.log('슬라이드 데이터:', currentSlides)
   }, [currentSlides])
 
   // YouTube URL에서 영상 ID 추출하는 함수
@@ -76,7 +73,7 @@ function App() {
   // YouTube API를 사용하여 영상 정보 가져오기
   const fetchYouTubeVideoInfo = async (videoId) => {
     // API 키가 없으면 기본 정보만 반환
-    if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'YOUR_YOUTUBE_API_KEY') {
+    if (!YOUTUBE_API_KEY) {
       return {
         title: '유튜브 영상',
         description: '유튜브에서 연결된 영상입니다.',
@@ -178,28 +175,22 @@ function App() {
   const currentCharacter = biblicalCharacters.find(char => char.id === selectedCharacter)
 
   const handleFileUpload = (files) => {
-    console.log('파일 업로드 시작:', files)
     setUploadedFiles(prev => [...prev, ...files])
-    const newSlides = files.map((file, index) => ({
-      id: `file_${Date.now()}_${index}`,
+    const newSlides = files.map((file) => ({
+      id: generateId('file'),
       title: file.name.replace(/\.[^/.]+$/, ""),
       content: `${file.name}에서 변환된 슬라이드입니다.`,
       type: 'file',
       description: 'PPT 파일에서 변환됨',
-      file: file, // 파일 객체 추가
-      url: file.type.startsWith('image/') ? URL.createObjectURL(file) : null // 이미지인 경우 URL 생성
+      file: file,
+      url: file.type.startsWith('image/') ? URL.createObjectURL(file) : null
     }))
-    console.log('생성된 슬라이드:', newSlides)
-    setCurrentSlides(prev => {
-      const updated = [...prev, ...newSlides]
-      console.log('업데이트된 전체 슬라이드:', updated)
-      return updated
-    })
+    setCurrentSlides(prev => [...prev, ...newSlides])
   }
 
   const handleVideoUpload = (files) => {
     const videoFiles = files.map(file => ({
-      id: `video_${Date.now()}_${Math.random()}`,
+      id: generateId('video'),
       title: file.name.replace(/\.[^/.]+$/, ""),
       description: '업로드된 교육 영상입니다.',
       category: '성경 이야기',
@@ -207,7 +198,7 @@ function App() {
       likes: 0,
       type: 'file',
       file: file,
-      url: URL.createObjectURL(file) // url 속성 추가
+      url: URL.createObjectURL(file)
     }))
     setUploadedVideos(prev => [...prev, ...videoFiles])
   }
@@ -224,7 +215,7 @@ function App() {
       }
 
       const newSlide = {
-        id: `google_${Date.now()}`,
+        id: generateId('google'),
         title: '구글 슬라이드',
         content: slideUrl,
         type: 'google',
@@ -258,7 +249,7 @@ function App() {
       }
 
       const newVideo = {
-        id: `youtube_${Date.now()}`,
+        id: generateId('youtube'),
         title: videoInfo.title,
         description: videoInfo.description,
         category: '성경 이야기',
@@ -267,7 +258,7 @@ function App() {
         type: 'youtube',
         url: youtubeUrl,
         thumbnail: videoInfo.thumbnail,
-        videoId: videoId // 영상 ID 저장
+        videoId: videoId
       }
       setUploadedVideos(prev => [...prev, newVideo])
       setYoutubeUrl('')
@@ -345,6 +336,9 @@ function App() {
     setAiError('')
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY
+      if (!apiKey) {
+        throw new Error('Gemini API 키가 설정되지 않았습니다. 환경변수 VITE_GEMINI_API_KEY를 확인하세요.')
+      }
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`
       const prompt = `${quizPrompt}\n\n아래 입력을 변환:\n${quizText}\n\n각 유형별로 반드시 7문제씩, 각 문제는 쉬운 난이도의 4지 선다형 객관식으로 만들어 JSON만 반환해줘.\n중요: 각 유형별로 서로 다른 구절이나 내용을 사용하여 중복을 피하라.`
       const body = { contents: [{ parts: [{ text: prompt }] }] }
@@ -384,7 +378,7 @@ function App() {
     { id: 'word', label: t('nav.word'), icon: '📖' },
     { id: 'doctrine', label: t('nav.doctrine'), icon: '⛪' },
     { id: 'sop', label: t('nav.sop'), icon: '🕊️' },
-    { id: 'sanctuary', label: '성소', icon: '🏛️' },
+    { id: 'sanctuary', label: t('nav.sanctuary'), icon: '🏛️' },
     { id: 'meditation', label: t('nav.meditation'), icon: '🧘' },
     { id: 'resources', label: t('nav.resources'), icon: '📚' }
   ]

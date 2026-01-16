@@ -316,7 +316,7 @@ const SDADoctrines = ({ isDarkMode }) => {
             <CardContent>
               <div className="space-y-4">
                 {selectedDoctrine.keyVerses.map((verse, index) => (
-                  <div key={index} className={`p-4 rounded-lg ${isDarkMode ? 'bg-slate-700' : 'bg-gray-50'}`}>
+                  <div key={typeof verse === 'string' ? verse : verse.reference || index} className={`p-4 rounded-lg ${isDarkMode ? 'bg-slate-700' : 'bg-gray-50'}`}>
                     <div className="flex items-start gap-3">
                       <Book className="w-5 h-5 text-blue-500 mt-1 flex-shrink-0" />
                       <div>
