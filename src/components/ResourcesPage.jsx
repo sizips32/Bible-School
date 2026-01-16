@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.jsx'
-import { Book, Upload, Play, ExternalLink, Youtube, FileText, Video } from 'lucide-react'
+import { Book, Upload, Play, ExternalLink, Youtube, FileText, Video, Trash2, Edit2, Save, X, FolderOpen } from 'lucide-react'
 import FileUpload from './FileUpload.jsx'
 import { useTranslation } from '../lib/i18n.js'
 
@@ -28,9 +28,84 @@ const ResourcesPage = ({
   aiError,
   quizPrompt,
   onQuizPromptChange,
-  aiQuestions
+  aiQuestions,
+  onDeleteSlide,
+  onUpdateSlide,
+  onDeleteVideo,
+  onUpdateVideo,
+  savedQuizzes = [],
+  onSaveQuiz,
+  onDeleteQuiz,
+  onUpdateQuiz,
+  onLoadQuiz
 }) => {
   const { t } = useTranslation()
+  const [editingSlideId, setEditingSlideId] = useState(null)
+  const [editingVideoId, setEditingVideoId] = useState(null)
+  const [editingQuizId, setEditingQuizId] = useState(null)
+  const [editValue, setEditValue] = useState('')
+  const [quizName, setQuizName] = useState('')
+
+  // 슬라이드 수정 시작
+  const startEditSlide = (slide) => {
+    setEditingSlideId(slide.id)
+    setEditValue(slide.title)
+  }
+
+  // 슬라이드 수정 저장
+  const saveSlideEdit = () => {
+    if (editingSlideId && editValue.trim()) {
+      onUpdateSlide(editingSlideId, editValue.trim())
+    }
+    setEditingSlideId(null)
+    setEditValue('')
+  }
+
+  // 영상 수정 시작
+  const startEditVideo = (video) => {
+    setEditingVideoId(video.id)
+    setEditValue(video.title)
+  }
+
+  // 영상 수정 저장
+  const saveVideoEdit = () => {
+    if (editingVideoId && editValue.trim()) {
+      onUpdateVideo(editingVideoId, editValue.trim())
+    }
+    setEditingVideoId(null)
+    setEditValue('')
+  }
+
+  // 퀴즈 수정 시작
+  const startEditQuiz = (quiz) => {
+    setEditingQuizId(quiz.id)
+    setEditValue(quiz.name)
+  }
+
+  // 퀴즈 수정 저장
+  const saveQuizEdit = () => {
+    if (editingQuizId && editValue.trim()) {
+      onUpdateQuiz(editingQuizId, editValue.trim())
+    }
+    setEditingQuizId(null)
+    setEditValue('')
+  }
+
+  // 퀴즈 저장
+  const handleSaveCurrentQuiz = () => {
+    if (aiQuestions && (aiQuestions.cardFlip?.length > 0 || aiQuestions.wordOrder?.length > 0 || aiQuestions.fillBlank?.length > 0)) {
+      onSaveQuiz(aiQuestions, quizName || `퀴즈 ${new Date().toLocaleString('ko-KR')}`)
+      setQuizName('')
+    }
+  }
+
+  // 수정 취소
+  const cancelEdit = () => {
+    setEditingSlideId(null)
+    setEditingVideoId(null)
+    setEditingQuizId(null)
+    setEditValue('')
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -44,14 +119,23 @@ const ResourcesPage = ({
           <TabsTrigger value="slides" className="flex items-center space-x-2">
             <FileText className="w-4 h-4" />
             <span>슬라이드 자료</span>
+            {currentSlides.length > 0 && (
+              <Badge variant="secondary" className="ml-1">{currentSlides.length}</Badge>
+            )}
           </TabsTrigger>
           <TabsTrigger value="videos" className="flex items-center space-x-2">
             <Video className="w-4 h-4" />
             <span>영상 자료</span>
+            {uploadedVideos.length > 0 && (
+              <Badge variant="secondary" className="ml-1">{uploadedVideos.length}</Badge>
+            )}
           </TabsTrigger>
           <TabsTrigger value="quiz" className="flex items-center space-x-2">
             <Book className="w-4 h-4" />
             <span>퀴즈 게임</span>
+            {savedQuizzes.length > 0 && (
+              <Badge variant="secondary" className="ml-1">{savedQuizzes.length}</Badge>
+            )}
           </TabsTrigger>
         </TabsList>
 
@@ -62,7 +146,7 @@ const ResourcesPage = ({
             <FileUpload
               title="PPT 파일 업로드"
               description="PowerPoint 파일을 업로드하여 웹에서 바로 확인하세요"
-              acceptedTypes=".ppt,.pptx"
+              acceptedTypes=".ppt,.pptx,.pdf,.jpg,.jpeg,.png"
               maxSize={50}
               onFileUpload={onFileUpload}
             />
@@ -97,6 +181,68 @@ const ResourcesPage = ({
             </Card>
           </div>
 
+          {/* 등록된 슬라이드 목록 */}
+          {currentSlides.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <FolderOpen className="w-5 h-5" />
+                  <span>등록된 슬라이드 ({currentSlides.length}개)</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {currentSlides.map((slide) => (
+                    <div key={slide.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                      <div className="flex items-center space-x-3 flex-1">
+                        <div className={`w-10 h-10 rounded flex items-center justify-center ${slide.type === 'google' ? 'bg-blue-100' : 'bg-orange-100'}`}>
+                          {slide.type === 'google' ? (
+                            <ExternalLink className="w-5 h-5 text-blue-600" />
+                          ) : (
+                            <FileText className="w-5 h-5 text-orange-600" />
+                          )}
+                        </div>
+                        {editingSlideId === slide.id ? (
+                          <Input
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            className="flex-1 max-w-xs"
+                            autoFocus
+                          />
+                        ) : (
+                          <div>
+                            <p className="font-medium text-sm">{slide.title}</p>
+                            <p className="text-xs text-slate-500">{slide.type === 'google' ? '구글 슬라이드' : 'PPT 파일'}</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {editingSlideId === slide.id ? (
+                          <>
+                            <Button variant="ghost" size="sm" onClick={saveSlideEdit} className="text-green-600 hover:text-green-700">
+                              <Save className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={cancelEdit} className="text-slate-500">
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button variant="ghost" size="sm" onClick={() => startEditSlide(slide)} className="text-blue-600 hover:text-blue-700">
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => onDeleteSlide(slide.id)} className="text-red-500 hover:text-red-700">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* 영상 자료 탭 */}
@@ -138,23 +284,145 @@ const ResourcesPage = ({
                     유튜브 영상 연결하기
                   </Button>
                 </div>
-
-                {youtubeUrl && (
-                  <div className="mt-6 p-4 bg-slate-50 rounded-lg">
-                    <h4 className="font-medium mb-2">미리보기</h4>
-                    <div className="aspect-video bg-black rounded border flex items-center justify-center">
-                      <Youtube className="w-12 h-12 text-red-500" />
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>
 
+          {/* 등록된 영상 목록 */}
+          {uploadedVideos.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <FolderOpen className="w-5 h-5" />
+                  <span>등록된 영상 ({uploadedVideos.length}개)</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {uploadedVideos.map((video) => (
+                    <div key={video.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                      <div className="flex items-center space-x-3 flex-1">
+                        <div className={`w-10 h-10 rounded flex items-center justify-center ${video.type === 'youtube' ? 'bg-red-100' : 'bg-purple-100'}`}>
+                          {video.type === 'youtube' ? (
+                            <Youtube className="w-5 h-5 text-red-600" />
+                          ) : (
+                            <Video className="w-5 h-5 text-purple-600" />
+                          )}
+                        </div>
+                        {editingVideoId === video.id ? (
+                          <Input
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            className="flex-1 max-w-xs"
+                            autoFocus
+                          />
+                        ) : (
+                          <div>
+                            <p className="font-medium text-sm">{video.title}</p>
+                            <p className="text-xs text-slate-500">
+                              {video.type === 'youtube' ? '유튜브 영상' : '업로드 영상'}
+                              {video.duration && ` - ${video.duration}`}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {editingVideoId === video.id ? (
+                          <>
+                            <Button variant="ghost" size="sm" onClick={saveVideoEdit} className="text-green-600 hover:text-green-700">
+                              <Save className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={cancelEdit} className="text-slate-500">
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button variant="ghost" size="sm" onClick={() => startEditVideo(video)} className="text-blue-600 hover:text-blue-700">
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => onDeleteVideo(video.id)} className="text-red-500 hover:text-red-700">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* 퀴즈 게임 자료 탭 */}
         <TabsContent value="quiz" className="space-y-6">
+          {/* 저장된 퀴즈 목록 */}
+          {savedQuizzes.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <FolderOpen className="w-5 h-5" />
+                  <span>저장된 퀴즈 ({savedQuizzes.length}개)</span>
+                </CardTitle>
+                <CardDescription>저장된 퀴즈를 불러오거나 삭제하세요</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {savedQuizzes.map((quiz) => (
+                    <div key={quiz.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                      <div className="flex items-center space-x-3 flex-1">
+                        <div className="w-10 h-10 rounded flex items-center justify-center bg-green-100">
+                          <Book className="w-5 h-5 text-green-600" />
+                        </div>
+                        {editingQuizId === quiz.id ? (
+                          <Input
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            className="flex-1 max-w-xs"
+                            autoFocus
+                          />
+                        ) : (
+                          <div>
+                            <p className="font-medium text-sm">{quiz.name}</p>
+                            <p className="text-xs text-slate-500">
+                              {new Date(quiz.createdAt).toLocaleString('ko-KR')}
+                              {quiz.data && ` - ${(quiz.data.cardFlip?.length || 0) + (quiz.data.wordOrder?.length || 0) + (quiz.data.fillBlank?.length || 0)}문제`}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {editingQuizId === quiz.id ? (
+                          <>
+                            <Button variant="ghost" size="sm" onClick={saveQuizEdit} className="text-green-600 hover:text-green-700">
+                              <Save className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={cancelEdit} className="text-slate-500">
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button variant="outline" size="sm" onClick={() => onLoadQuiz(quiz.id)}>
+                              불러오기
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => startEditQuiz(quiz)} className="text-blue-600 hover:text-blue-700">
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => onDeleteQuiz(quiz.id)} className="text-red-500 hover:text-red-700">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="mb-6">
             <label className="block text-sm font-medium mb-2">AI 퀴즈 프롬프트 (예시/규칙/출력형식 등)</label>
             <textarea
@@ -231,14 +499,32 @@ const ResourcesPage = ({
             </Card>
           </div>
 
-          {/* AI 생성 결과 미리보기 및 정답 확인 */}
-          {aiQuestions && (
-            <div className="mt-8">
-              <h3 className="text-xl font-bold mb-4 text-blue-700">AI가 생성한 퀴즈 미리보기</h3>
-              {['cardFlip', 'wordOrder', 'fillBlank'].map(type => (
-                <AIPreviewQuizSection key={type} type={type} questions={aiQuestions[type]} />
-              ))}
-            </div>
+          {/* AI 생성 결과 미리보기 및 저장 */}
+          {aiQuestions && (aiQuestions.cardFlip?.length > 0 || aiQuestions.wordOrder?.length > 0 || aiQuestions.fillBlank?.length > 0) && (
+            <Card className="mt-8">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="text-blue-700">AI가 생성한 퀴즈 미리보기</span>
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      placeholder="퀴즈 이름 입력"
+                      value={quizName}
+                      onChange={(e) => setQuizName(e.target.value)}
+                      className="w-48"
+                    />
+                    <Button onClick={handleSaveCurrentQuiz} className="bg-green-600 hover:bg-green-700">
+                      <Save className="w-4 h-4 mr-2" />
+                      퀴즈 저장
+                    </Button>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {['cardFlip', 'wordOrder', 'fillBlank'].map(type => (
+                  <AIPreviewQuizSection key={type} type={type} questions={aiQuestions[type]} />
+                ))}
+              </CardContent>
+            </Card>
           )}
 
           {/* 퀴즈 게임 설정 */}
@@ -253,21 +539,21 @@ const ResourcesPage = ({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="p-4 border rounded-lg text-center">
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <span className="text-blue-600 font-bold">🔄</span>
+                    <span className="text-blue-600 font-bold text-xl">1</span>
                   </div>
                   <h4 className="font-medium mb-2">카드 뒤집기</h4>
                   <p className="text-sm text-gray-600">구절과 키워드 매칭</p>
                 </div>
                 <div className="p-4 border rounded-lg text-center">
                   <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <span className="text-green-600 font-bold">⏰</span>
+                    <span className="text-green-600 font-bold text-xl">2</span>
                   </div>
                   <h4 className="font-medium mb-2">순서 기억</h4>
                   <p className="text-sm text-gray-600">섞인 단어 순서 맞추기</p>
                 </div>
                 <div className="p-4 border rounded-lg text-center">
                   <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <span className="text-orange-600 font-bold">📝</span>
+                    <span className="text-orange-600 font-bold text-xl">3</span>
                   </div>
                   <h4 className="font-medium mb-2">구절 맞추기</h4>
                   <p className="text-sm text-gray-600">핵심 단어 빈칸 채우기</p>
@@ -286,36 +572,65 @@ export default ResourcesPage
 
 // AI 퀴즈 미리보기/정답 확인 UI
 function AIPreviewQuizSection({ type, questions }) {
-  const [userAnswers, setUserAnswers] = React.useState(Array(questions.length).fill(''))
-  const [showResults, setShowResults] = React.useState(Array(questions.length).fill(false))
+  const [userAnswers, setUserAnswers] = React.useState(Array(questions?.length || 0).fill(''))
+  const [showResults, setShowResults] = React.useState(Array(questions?.length || 0).fill(false))
+
   if (!questions || questions.length === 0) return null
+
   const typeLabel = type === 'cardFlip' ? '카드 뒤집기' : type === 'wordOrder' ? '순서 기억' : '구절 맞추기'
+  const typeColor = type === 'cardFlip' ? 'blue' : type === 'wordOrder' ? 'green' : 'orange'
+
   return (
     <div className="mb-8">
-      <h4 className="text-lg font-semibold mb-2 text-blue-600">{typeLabel} 문제</h4>
+      <h4 className={`text-lg font-semibold mb-4 text-${typeColor}-600 flex items-center`}>
+        <span className={`w-6 h-6 rounded-full bg-${typeColor}-100 text-${typeColor}-600 flex items-center justify-center text-sm mr-2`}>
+          {questions.length}
+        </span>
+        {typeLabel} 문제
+      </h4>
       <div className="space-y-4">
         {questions.map((q, i) => (
-          <div key={i} className="p-4 border rounded-lg bg-blue-50">
+          <div key={`${type}-${i}`} className={`p-4 border rounded-lg bg-${typeColor}-50 border-${typeColor}-200`}>
             <div className="mb-2 font-medium">Q{i + 1}. {q.question}</div>
-            <input
-              className="border rounded px-3 py-1 w-full max-w-md mb-2"
-              type="text"
-              placeholder="정답을 입력하세요"
-              value={userAnswers[i]}
-              onChange={e => {
-                const arr = [...userAnswers]; arr[i] = e.target.value; setUserAnswers(arr);
-              }}
-              disabled={showResults[i]}
-            />
+            {q.options && (
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                {q.options.map((opt, optIndex) => (
+                  <button
+                    key={opt}
+                    onClick={() => {
+                      if (!showResults[i]) {
+                        const arr = [...userAnswers]; arr[i] = opt; setUserAnswers(arr);
+                      }
+                    }}
+                    className={`p-2 text-sm rounded border text-left transition-colors ${
+                      showResults[i]
+                        ? opt === q.answer
+                          ? 'bg-green-100 border-green-500 text-green-700'
+                          : userAnswers[i] === opt
+                            ? 'bg-red-100 border-red-500 text-red-700'
+                            : 'bg-white border-gray-200'
+                        : userAnswers[i] === opt
+                          ? 'bg-blue-100 border-blue-500'
+                          : 'bg-white border-gray-200 hover:bg-gray-50'
+                    }`}
+                    disabled={showResults[i]}
+                  >
+                    {String.fromCharCode(65 + optIndex)}. {opt}
+                  </button>
+                ))}
+              </div>
+            )}
             {showResults[i] && (
-              <div className={`mt-1 text-sm font-bold ${userAnswers[i].trim() === q.answer.trim() ? 'text-green-600' : 'text-red-600'}`}>{userAnswers[i].trim() === q.answer.trim() ? '정답입니다!' : `오답입니다. 정답: ${q.answer}`}</div>
+              <div className={`mt-2 text-sm font-bold ${userAnswers[i] === q.answer ? 'text-green-600' : 'text-red-600'}`}>
+                {userAnswers[i] === q.answer ? '정답입니다!' : `오답입니다. 정답: ${q.answer}`}
+              </div>
             )}
             <button
-              className={`mt-2 px-3 py-1 rounded text-white text-sm ${showResults[i] ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+              className={`mt-2 px-4 py-2 rounded text-white text-sm font-medium transition-colors ${showResults[i] ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
               onClick={() => {
                 const arr = [...showResults]; arr[i] = true; setShowResults(arr);
               }}
-              disabled={showResults[i]}
+              disabled={showResults[i] || !userAnswers[i]}
             >
               {showResults[i] ? '확인 완료' : '정답 확인'}
             </button>
@@ -325,4 +640,3 @@ function AIPreviewQuizSection({ type, questions }) {
     </div>
   )
 }
-

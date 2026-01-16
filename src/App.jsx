@@ -43,6 +43,7 @@ function App() {
   const [quizAIQuestions, setQuizAIQuestions] = useState({ cardFlip: [], wordOrder: [], fillBlank: [] })
   const [aiLoading, setAiLoading] = useState(false)
   const [aiError, setAiError] = useState('')
+  const [savedQuizzes, setSavedQuizzes] = useState([]) // 저장된 퀴즈 목록
 
   // YouTube API 키 (환경변수로 관리)
   const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY
@@ -51,6 +52,7 @@ function App() {
   useEffect(() => {
     setUploadedVideos(loadFromLocalStorage('uploadedVideos'));
     setCurrentSlides(loadFromLocalStorage('currentSlides'));
+    setSavedQuizzes(loadFromLocalStorage('savedQuizzes'));
   }, []);
 
   // 업로드된 영상이 변경될 때마다 localStorage에 저장
@@ -327,6 +329,62 @@ function App() {
     if (selectedSlide && selectedSlide.id === slideId) {
       setShowSlideViewer(false);
       setSelectedSlide(null);
+    }
+  };
+
+  // 슬라이드 수정 핸들러
+  const handleUpdateSlide = (slideId, newTitle) => {
+    const updated = currentSlides.map(slide =>
+      slide.id === slideId ? { ...slide, title: newTitle } : slide
+    );
+    setCurrentSlides(updated);
+    saveToLocalStorage('currentSlides', updated);
+  };
+
+  // 영상 수정 핸들러
+  const handleUpdateVideo = (videoId, newTitle) => {
+    const updated = uploadedVideos.map(video =>
+      video.id === videoId ? { ...video, title: newTitle } : video
+    );
+    setUploadedVideos(updated);
+    saveToLocalStorage('uploadedVideos', updated);
+  };
+
+  // 퀴즈 저장 핸들러
+  const handleSaveQuiz = (quizData, quizName) => {
+    const newQuiz = {
+      id: generateId('quiz'),
+      name: quizName || `퀴즈 ${savedQuizzes.length + 1}`,
+      data: quizData,
+      createdAt: new Date().toISOString()
+    };
+    const updated = [...savedQuizzes, newQuiz];
+    setSavedQuizzes(updated);
+    saveToLocalStorage('savedQuizzes', updated);
+    return newQuiz;
+  };
+
+  // 퀴즈 삭제 핸들러
+  const handleDeleteQuiz = (quizId) => {
+    const updated = savedQuizzes.filter(quiz => quiz.id !== quizId);
+    setSavedQuizzes(updated);
+    saveToLocalStorage('savedQuizzes', updated);
+  };
+
+  // 퀴즈 수정 핸들러
+  const handleUpdateQuiz = (quizId, newName) => {
+    const updated = savedQuizzes.map(quiz =>
+      quiz.id === quizId ? { ...quiz, name: newName } : quiz
+    );
+    setSavedQuizzes(updated);
+    saveToLocalStorage('savedQuizzes', updated);
+  };
+
+  // 퀴즈 불러오기 핸들러
+  const handleLoadQuiz = (quizId) => {
+    const quiz = savedQuizzes.find(q => q.id === quizId);
+    if (quiz) {
+      setQuizAIQuestions(quiz.data);
     }
   };
 
@@ -766,6 +824,16 @@ function App() {
             onAIGenerateQuiz={handleAIGenerateQuiz}
             aiLoading={aiLoading}
             aiError={aiError}
+            aiQuestions={quizAIQuestions}
+            onDeleteSlide={handleDeleteSlide}
+            onUpdateSlide={handleUpdateSlide}
+            onDeleteVideo={handleDeleteVideo}
+            onUpdateVideo={handleUpdateVideo}
+            savedQuizzes={savedQuizzes}
+            onSaveQuiz={handleSaveQuiz}
+            onDeleteQuiz={handleDeleteQuiz}
+            onUpdateQuiz={handleUpdateQuiz}
+            onLoadQuiz={handleLoadQuiz}
           />
         )}
 
